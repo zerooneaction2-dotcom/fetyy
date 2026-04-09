@@ -11,6 +11,8 @@ from generate_periodic import build_cert, build_sticker, get_blocks
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
+REMOTE_URL = "https://fetyy.onrender.com"
+
 # ── تخزين بيانات الفحوصات في ملف JSON (تبقى بعد إعادة التشغيل) ──────────────
 DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inspections.json")
 
@@ -32,6 +34,39 @@ def _save_inspection(barcode_id, data):
     inspections[barcode_id] = data
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(inspections, f, ensure_ascii=False, indent=2)
+    # مزامنة البيانات مع السيرفر البعيد (Render)
+    _sync_to_remote(barcode_id, data)
+
+def _sync_to_remote(barcode_id, data):
+    """إرسال البيانات إلى Render حتى تكون متاحة عند مسح الباركود."""
+    import threading, urllib.request, urllib.error
+    def _send():
+        try:
+            payload = json.dumps({"barcode_id": barcode_id, "data": data}).encode()
+            req = urllib.request.Request(
+                f"{REMOTE_URL}/api/save",
+                data=payload,
+                headers={"Content-Type": "application/json"},
+            )
+            urllib.request.urlopen(req, timeout=10)
+        except Exception:
+            pass  # لا نوقف التوليد إذا فشلت المزامنة
+    threading.Thread(target=_send, daemon=True).start()
+
+
+@app.route("/api/save", methods=["POST"])
+def api_save():
+    """استقبال بيانات الفحص من التطبيق المحلي."""
+    body = request.get_json(force=True)
+    barcode_id = body.get("barcode_id", "")
+    data = body.get("data", {})
+    if barcode_id and data:
+        inspections = _load_inspections()
+        inspections[barcode_id] = data
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(inspections, f, ensure_ascii=False, indent=2)
+        return jsonify({"ok": True})
+    return jsonify({"error": "missing data"}), 400
 
 
 @app.route("/")
