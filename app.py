@@ -15,19 +15,47 @@ REMOTE_URL = "https://fetyy.onrender.com"
 
 # ── تخزين بيانات الفحوصات في ملف JSON (تبقى بعد إعادة التشغيل) ──────────────
 DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inspections.json")
+GITHUB_RAW = "https://raw.githubusercontent.com/zerooneaction2-dotcom/fetyy/master/inspections.json"
+
+def _fetch_github_data():
+    """جلب البيانات من GitHub عند بداية التشغيل (للحفاظ عليها بعد إعادة تشغيل Render)."""
+    import urllib.request
+    try:
+        req = urllib.request.Request(GITHUB_RAW, headers={"Cache-Control": "no-cache"})
+        resp = urllib.request.urlopen(req, timeout=10)
+        return json.loads(resp.read().decode("utf-8"))
+    except Exception:
+        return {}
+
+_github_fetched = False
 
 def _load_inspections():
+    global _github_fetched
+    local = {}
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {
-        "112598800": {
-            "plate": "Z D A 6890", "vin": "WDB65256215901608",
-            "maker": "مرسيدس", "car_type": "رأس", "color": "أخضر/أزرق",
-            "year": "2011", "odometer": "112598800", "seq_no": "306574",
-            "insp_date": "2026-04-08", "exp_date": "2027-04-08",
+            local = json.load(f)
+    # عند أول تحميل على Render، ادمج بيانات GitHub مع المحلية
+    if not _github_fetched:
+        _github_fetched = True
+        github_data = _fetch_github_data()
+        if github_data:
+            # بيانات GitHub تُدمج (المحلي يأخذ الأولوية إن وجد)
+            merged = {**github_data, **local}
+            if merged != local:
+                with open(DATA_FILE, "w", encoding="utf-8") as f:
+                    json.dump(merged, f, ensure_ascii=False, indent=2)
+            return merged
+    if not local:
+        return {
+            "112598800": {
+                "plate": "Z D A 6890", "vin": "WDB65256215901608",
+                "maker": "مرسيدس", "car_type": "رأس", "color": "أخضر/أزرق",
+                "year": "2011", "odometer": "112598800", "seq_no": "306574",
+                "insp_date": "2026-04-08", "exp_date": "2027-04-08",
+            }
         }
-    }
+    return local
 
 def _save_inspection(barcode_id, data):
     inspections = _load_inspections()
@@ -39,18 +67,21 @@ def _save_inspection(barcode_id, data):
 
 def _sync_to_remote(barcode_id, data):
     """إرسال البيانات إلى Render حتى تكون متاحة عند مسح الباركود."""
-    import threading, urllib.request, urllib.error
+    import threading, urllib.request, urllib.error, time as _time
     def _send():
-        try:
-            payload = json.dumps({"barcode_id": barcode_id, "data": data}).encode()
-            req = urllib.request.Request(
-                f"{REMOTE_URL}/api/save",
-                data=payload,
-                headers={"Content-Type": "application/json"},
-            )
-            urllib.request.urlopen(req, timeout=10)
-        except Exception:
-            pass  # لا نوقف التوليد إذا فشلت المزامنة
+        payload = json.dumps({"barcode_id": barcode_id, "data": data}).encode()
+        for attempt in range(4):  # 4 محاولات
+            try:
+                req = urllib.request.Request(
+                    f"{REMOTE_URL}/api/save",
+                    data=payload,
+                    headers={"Content-Type": "application/json"},
+                )
+                urllib.request.urlopen(req, timeout=30)
+                return  # نجحت
+            except Exception:
+                if attempt < 3:
+                    _time.sleep(5 * (attempt + 1))  # انتظر 5, 10, 15 ثانية
     threading.Thread(target=_send, daemon=True).start()
 
 
@@ -79,6 +110,31 @@ def form():
     return render_template("periodic_form.html")
 
 
+@app.route("/edit")
+def edit_page():
+    """صفحة تعديل بيانات ملصق موجود."""
+    return render_template("edit.html", inspections=_load_inspections())
+
+
+@app.route("/api/update", methods=["POST"])
+def api_update():
+    """تعديل بيانات ملصق موجود بدون توليد جديد."""
+    body = request.get_json(force=True)
+    uid = body.get("uid", "")
+    data = body.get("data", {})
+    if not uid:
+        return jsonify({"error": "لم يتم تحديد الملصق"}), 400
+    inspections = _load_inspections()
+    if uid not in inspections:
+        return jsonify({"error": "الملصق غير موجود"}), 404
+    inspections[uid].update(data)
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(inspections, f, ensure_ascii=False, indent=2)
+    # مزامنة مع Render
+    _sync_to_remote(uid, inspections[uid])
+    return jsonify({"ok": True})
+
+
 @app.route("/generate/cert", methods=["POST"])
 def gen_cert():
     inp = request.get_json(force=True)
@@ -91,7 +147,7 @@ def gen_cert():
             io.BytesIO(pdf_bytes),
             mimetype="application/pdf",
             as_attachment=True,
-            download_name="وثيقة_فحص_المركبة.pdf",
+            download_name="inspection_certificate.pdf",
         )
     except FileNotFoundError as e:
         return jsonify({"error": str(e)}), 404
@@ -111,7 +167,7 @@ def gen_sticker():
             io.BytesIO(pdf_bytes),
             mimetype="application/pdf",
             as_attachment=True,
-            download_name="ملصق_الفحص_الفني_الدوري.pdf",
+            download_name="inspection_sticker.pdf",
         )
     except FileNotFoundError as e:
         return jsonify({"error": str(e)}), 404
@@ -132,14 +188,14 @@ def gen_both():
         _save_inspection(unique_id, inp)
         zip_buf = io.BytesIO()
         with zipfile.ZipFile(zip_buf, "w", zipfile.ZIP_DEFLATED) as z:
-            z.writestr("وثيقة_فحص_المركبة.pdf",       cert_bytes)
-            z.writestr("ملصق_الفحص_الفني_الدوري.pdf", sticker_bytes)
+            z.writestr("inspection_certificate.pdf", cert_bytes)
+            z.writestr("inspection_sticker.pdf",     sticker_bytes)
         zip_buf.seek(0)
         return send_file(
             zip_buf,
             mimetype="application/zip",
             as_attachment=True,
-            download_name="وثيقة_الفحص_الفني_الدوري.zip",
+            download_name="inspection_documents.zip",
         )
     except FileNotFoundError as e:
         return jsonify({"error": str(e)}), 404

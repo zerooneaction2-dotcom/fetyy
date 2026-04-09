@@ -98,15 +98,17 @@ class PDFEditor:
                                            "size": round(span["size"], 1)})
         return blocks
 
-    def to_bytes(self):
+    def to_bytes(self, title=""):
+        if title:
+            self.doc.set_metadata({"title": title, "producer": "FETIY", "creator": "FETIY"})
         buf = io.BytesIO()
-        self.doc.save(buf, garbage=4, deflate=True)
+        self.doc.save(buf, garbage=4, deflate=True, clean=True)
         self.doc.close()
         buf.seek(0)
         return buf.read()
 
     def save(self, path):
-        self.doc.save(path, garbage=4, deflate=True)
+        self.doc.save(path, garbage=4, deflate=True, clean=True)
         self.doc.close()
 
 
@@ -151,7 +153,7 @@ def build_cert(inp: dict) -> bytes:
     # الرقم التسلسلي للوثيقة، رقم المسار، رقم الفاحص، رقم البندكرة،
     # رقم المحاولة، موقع الفحص
 
-    return ed.to_bytes()
+    return ed.to_bytes(title="Vehicle Inspection Certificate")
 
 
 def build_sticker(inp: dict, base_url: str = "https://fetyy.onrender.com") -> bytes:
@@ -245,7 +247,7 @@ def build_sticker(inp: dict, base_url: str = "https://fetyy.onrender.com") -> by
     link = {"kind": fitz.LINK_URI, "from": link_rect, "uri": verify_url}
     ed.page.insert_link(link)
 
-    return ed.to_bytes()
+    return ed.to_bytes(title="Vehicle Inspection Sticker")
 
 
 def get_blocks(filename: str) -> list:

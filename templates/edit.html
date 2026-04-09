@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>تعديل بيانات ملصق</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Cairo', sans-serif; background: #f0f4f0; min-height: 100vh; color: #1a1a1a; }
+
+    header {
+      background: #00838f; color: white; padding: 18px 32px;
+      display: flex; align-items: center; gap: 14px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+    }
+    header h1 { font-size: 20px; font-weight: 700; }
+    header p  { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+
+    main { max-width: 900px; margin: 28px auto; padding: 0 16px 60px; }
+
+    .card {
+      background: white; border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 20px; overflow: hidden;
+    }
+    .card-header {
+      background: #e0f7fa; border-bottom: 2px solid #b2ebf2;
+      padding: 12px 20px; display: flex; align-items: center; gap: 8px;
+      font-weight: 700; font-size: 14px; color: #006064;
+    }
+    .card-body { padding: 20px; }
+
+    .grid { display: grid; gap: 14px; }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    @media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+    .field label {
+      display: block; font-size: 11.5px; font-weight: 600;
+      color: #555; margin-bottom: 5px;
+    }
+    .field input, .field select {
+      width: 100%; padding: 8px 11px; border: 1.5px solid #ddd;
+      border-radius: 8px; font-family: 'Cairo', sans-serif;
+      font-size: 13px; color: #1a1a1a; background: #fafafa;
+      transition: border-color 0.15s, box-shadow 0.15s; outline: none;
+    }
+    .field input:focus, .field select:focus {
+      border-color: #00838f; box-shadow: 0 0 0 3px rgba(0,131,143,0.12); background: white;
+    }
+    .field input.number { font-family: monospace; font-size: 12.5px; }
+
+    /* قائمة الملصقات */
+    .uid-list { list-style: none; padding: 0; }
+    .uid-list li {
+      padding: 10px 16px; border-bottom: 1px solid #eee; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      transition: background 0.12s; font-size: 13px;
+    }
+    .uid-list li:hover { background: #e0f7fa; }
+    .uid-list li.active { background: #b2ebf2; font-weight: 700; }
+    .uid-label { display: flex; flex-direction: column; gap: 2px; }
+    .uid-id { font-family: monospace; font-size: 12px; color: #006064; }
+    .uid-info { font-size: 11px; color: #777; }
+
+    .btn {
+      padding: 13px 28px; border: none; border-radius: 10px;
+      font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+      transition: transform 0.12s, box-shadow 0.12s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-save { background: #00838f; color: white; box-shadow: 0 3px 10px rgba(0,131,143,0.3); }
+    .btn-save:hover { background: #006064; }
+    .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-back {
+      background: none; border: 1.5px solid #ccc; color: #555;
+      padding: 8px 16px; font-size: 12px; border-radius: 8px;
+    }
+
+    #toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #00838f; color: white; padding: 12px 28px;
+      border-radius: 50px; font-size: 13px; font-weight: 600;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      transition: transform 0.3s ease; z-index: 99; white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.error { background: #c62828; }
+
+    #edit-form { display: none; }
+    .empty-msg { text-align: center; padding: 40px; color: #aaa; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg width="40" height="40" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="48" fill="white" opacity="0.15"/>
+    <rect x="25" y="30" width="40" height="50" rx="4" fill="white"/>
+    <path d="M55 30 L55 42 L67 42Z" fill="white" opacity="0.7"/>
+    <line x1="33" y1="50" x2="58" y2="50" stroke="#00838f" stroke-width="3"/>
+    <line x1="33" y1="58" x2="52" y2="58" stroke="#00838f" stroke-width="3"/>
+    <line x1="33" y1="66" x2="48" y2="66" stroke="#00838f" stroke-width="3"/>
+  </svg>
+  <div>
+    <h1>تعديل بيانات ملصق</h1>
+    <p>اختر ملصقاً من القائمة ثم عدّل بياناته — سيتم تحديث البيانات على السيرفر</p>
+  </div>
+</header>
+
+<main>
+  <div style="margin-bottom:16px;">
+    <a href="/form" class="btn btn-back">→ العودة لصفحة التوليد</a>
+  </div>
+
+  <!-- قائمة الملصقات -->
+  <div class="card">
+    <div class="card-header">اختر الملصق</div>
+    <div class="card-body" style="padding:0;">
+      <ul class="uid-list" id="uid-list">
+        {% for uid, data in inspections.items() %}
+        <li onclick="selectUID('{{ uid }}')" id="li-{{ uid }}">
+          <div class="uid-label">
+            <span class="uid-id">{{ uid }}</span>
+            <span class="uid-info">{{ data.get('plate','') }} — {{ data.get('maker','') }} {{ data.get('car_type','') }}</span>
+          </div>
+          <svg width="16" height="16" fill="none" stroke="#aaa" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        </li>
+        {% endfor %}
+      </ul>
+      {% if not inspections %}
+      <div class="empty-msg">لا توجد ملصقات محفوظة</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- نموذج التعديل -->
+  <div id="edit-form">
+    <div class="card">
+      <div class="card-header">تعديل بيانات الملصق: <span id="edit-uid-label" style="font-family:monospace;margin-right:8px;"></span></div>
+      <div class="card-body">
+        <div class="grid grid-2">
+          <div class="field">
+            <label>تاريخ الفحص</label>
+            <input id="e_insp_date" type="date"/>
+          </div>
+          <div class="field">
+            <label>تاريخ الانتهاء</label>
+            <input id="e_exp_date" type="date"/>
+          </div>
+        </div>
+        <div class="grid grid-2" style="margin-top:14px;">
+          <div class="field">
+            <label>رقم اللوحة</label>
+            <input id="e_plate" class="number"/>
+          </div>
+          <div class="field">
+            <label>رقم الهيكل (VIN)</label>
+            <input id="e_vin" class="number"/>
+          </div>
+          <div class="field">
+            <label>الرقم التسلسلي</label>
+            <input id="e_seq_no" class="number"/>
+          </div>
+          <div class="field">
+            <label>سنة الصنع</label>
+            <input id="e_year" class="number"/>
+          </div>
+          <div class="field" style="grid-column: span 2;">
+            <label>قراءة العداد (كم)</label>
+            <input id="e_odometer" class="number"/>
+          </div>
+        </div>
+        <div class="grid grid-3" style="margin-top:14px;">
+          <div class="field">
+            <label>الشركة الصانعة</label>
+            <input id="e_maker" dir="rtl"/>
+          </div>
+          <div class="field">
+            <label>نوع السيارة</label>
+            <input id="e_car_type" dir="rtl"/>
+          </div>
+          <div class="field">
+            <label>اللون</label>
+            <input id="e_color" dir="rtl"/>
+          </div>
+        </div>
+        <div style="margin-top:20px;text-align:center;">
+          <button class="btn btn-save" id="save-btn" onclick="saveChanges()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            حفظ التعديلات
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+  const inspections = {{ inspections | tojson }};
+  let selectedUID = null;
+
+  const FIELDS = ['insp_date','exp_date','plate','vin','seq_no','year','odometer','maker','car_type','color'];
+
+  function selectUID(uid) {
+    selectedUID = uid;
+    // تحديث القائمة
+    document.querySelectorAll('.uid-list li').forEach(li => li.classList.remove('active'));
+    const li = document.getElementById('li-' + uid);
+    if (li) li.classList.add('active');
+
+    // تعبئة الحقول
+    const data = inspections[uid] || {};
+    FIELDS.forEach(f => {
+      const el = document.getElementById('e_' + f);
+      if (el) el.value = data[f] || '';
+    });
+    document.getElementById('edit-uid-label').textContent = uid;
+    document.getElementById('edit-form').style.display = 'block';
+  }
+
+  async function saveChanges() {
+    if (!selectedUID) return;
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true;
+    showToast('⏳ جار حفظ التعديلات...');
+
+    const data = {};
+    FIELDS.forEach(f => {
+      const el = document.getElementById('e_' + f);
+      if (el) data[f] = el.value.trim();
+    });
+
+    try {
+      const res = await fetch('/api/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: selectedUID, data: data }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'خطأ');
+      // تحديث البيانات المحلية
+      inspections[selectedUID] = { ...inspections[selectedUID], ...data };
+      showToast('✅ تم حفظ التعديلات بنجاح');
+    } catch (e) {
+      showToast('❌ ' + e.message, true);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function showToast(msg, isError) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = isError ? 'show error' : 'show';
+    setTimeout(() => t.className = '', 3000);
+  }
+</script>
+</body>
+</html>
