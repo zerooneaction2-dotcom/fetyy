@@ -164,21 +164,8 @@ def build_sticker(inp: dict, base_url: str = "https://fetyy.onrender.com") -> by
     barcode_id = inp.get("odometer", "000000")
     ed.replace("112598800", barcode_id, BLACK)
 
-    # ── بناء رابط التحقق مع البيانات مضغوطة بـ base64 ──
-    import json, base64, zlib
-    data_to_encode = {
-        "p": inp.get("plate", ""),
-        "v": inp.get("vin", ""),
-        "m": inp.get("maker", ""),
-        "t": inp.get("car_type", ""),
-        "c": inp.get("color", ""),
-        "y": inp.get("year", ""),
-        "i": inp.get("insp_date", ""),
-        "e": inp.get("exp_date", ""),
-        "n": inp.get("center", inp.get("location", "")),
-    }
-    compressed = base64.urlsafe_b64encode(zlib.compress(json.dumps(data_to_encode, ensure_ascii=False).encode())).decode()
-    verify_url = f"{base_url}/iv/fetyy.php?wb={barcode_id}&d={compressed}"
+    # ── بناء رابط التحقق القصير (مثل الأصلي تماماً) ──
+    verify_url = f"{base_url}/iv/fetyy.php?wb={barcode_id}"
 
     # ── توليد QR Code جديد بالرابط القصير ──
     import qrcode

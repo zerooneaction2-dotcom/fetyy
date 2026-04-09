@@ -116,24 +116,7 @@ def gen_both():
 def verify():
     """صفحة نتيجة الفحص — تظهر عند مسح الباركود."""
     barcode_id = request.args.get("wb", "")
-    compressed = request.args.get("d", "")
-    data = None
-    if compressed:
-        import json, base64, zlib
-        try:
-            raw = zlib.decompress(base64.urlsafe_b64decode(compressed))
-            d = json.loads(raw)
-            data = {
-                "plate": d.get("p", ""), "vin": d.get("v", ""),
-                "maker": d.get("m", ""), "car_type": d.get("t", ""),
-                "color": d.get("c", ""), "year": d.get("y", ""),
-                "insp_date": d.get("i", ""), "exp_date": d.get("e", ""),
-                "center": d.get("n", ""),
-            }
-        except Exception:
-            data = None
-    if not data:
-        data = _load_inspections().get(barcode_id)
+    data = _load_inspections().get(barcode_id)
     return render_template("verify.html", data=data, barcode_id=barcode_id)
 
 
