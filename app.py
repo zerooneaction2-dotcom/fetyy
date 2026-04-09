@@ -6,19 +6,32 @@
 from flask import Flask, render_template, request, send_file, jsonify, url_for, redirect
 import io
 import os
+import json
 from generate_periodic import build_cert, build_sticker, get_blocks
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
-# ── تخزين بيانات الفحوصات في الذاكرة (barcode_id → بيانات) ──────────────────
-_inspections: dict = {
-    "112598800": {
-        "plate": "Z D A 6890", "vin": "WDB65256215901608",
-        "maker": "مرسيدس", "car_type": "رأس", "color": "أخضر/أزرق",
-        "year": "2011", "odometer": "112598800", "seq_no": "306574",
-        "insp_date": "2026-04-08", "exp_date": "2027-04-08",
+# ── تخزين بيانات الفحوصات في ملف JSON (تبقى بعد إعادة التشغيل) ──────────────
+DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inspections.json")
+
+def _load_inspections():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {
+        "112598800": {
+            "plate": "Z D A 6890", "vin": "WDB65256215901608",
+            "maker": "مرسيدس", "car_type": "رأس", "color": "أخضر/أزرق",
+            "year": "2011", "odometer": "112598800", "seq_no": "306574",
+            "insp_date": "2026-04-08", "exp_date": "2027-04-08",
+        }
     }
-}
+
+def _save_inspection(barcode_id, data):
+    inspections = _load_inspections()
+    inspections[barcode_id] = data
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(inspections, f, ensure_ascii=False, indent=2)
 
 
 @app.route("/")
@@ -37,7 +50,7 @@ def gen_cert():
     try:
         # حفظ بيانات الفحص للباركود
         barcode_id = inp.get("odometer", "000000")
-        _inspections[barcode_id] = inp
+        _save_inspection(barcode_id, inp)
         pdf_bytes = build_cert(inp)
         return send_file(
             io.BytesIO(pdf_bytes),
@@ -57,8 +70,8 @@ def gen_sticker():
     try:
         # حفظ بيانات الفحص للباركود
         barcode_id = inp.get("odometer", "000000")
-        _inspections[barcode_id] = inp
-        pdf_bytes = build_sticker(inp, request.host_url.rstrip('/'))
+        _save_inspection(barcode_id, inp)
+        pdf_bytes = build_sticker(inp)
         return send_file(
             io.BytesIO(pdf_bytes),
             mimetype="application/pdf",
@@ -79,9 +92,9 @@ def gen_both():
     try:
         # حفظ بيانات الفحص للباركود
         barcode_id = inp.get("odometer", "000000")
-        _inspections[barcode_id] = inp
+        _save_inspection(barcode_id, inp)
         cert_bytes    = build_cert(inp)
-        sticker_bytes = build_sticker(inp, request.host_url.rstrip('/'))
+        sticker_bytes = build_sticker(inp)
         zip_buf = io.BytesIO()
         with zipfile.ZipFile(zip_buf, "w", zipfile.ZIP_DEFLATED) as z:
             z.writestr("وثيقة_فحص_المركبة.pdf",       cert_bytes)
@@ -103,17 +116,7 @@ def gen_both():
 def verify():
     """صفحة نتيجة الفحص — تظهر عند مسح الباركود."""
     barcode_id = request.args.get("wb", "")
-    # أولاً: قراءة البيانات من URL params (الأولوية)
-    url_data = {}
-    for key in ("plate", "vin", "maker", "car_type", "color", "year", "insp_date", "exp_date", "center"):
-        val = request.args.get(key, "")
-        if val:
-            url_data[key] = val
-    # إذا البيانات موجودة في الرابط استخدمها، وإلا ابحث في الذاكرة
-    if url_data:
-        data = url_data
-    else:
-        data = _inspections.get(barcode_id)
+    data = _load_inspections().get(barcode_id)
     return render_template("verify.html", data=data, barcode_id=barcode_id)
 
 

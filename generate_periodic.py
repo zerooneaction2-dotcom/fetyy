@@ -164,34 +164,23 @@ def build_sticker(inp: dict, base_url: str = "https://fetyy.onrender.com") -> by
     barcode_id = inp.get("odometer", "000000")
     ed.replace("112598800", barcode_id, BLACK)
 
-    # ── بناء رابط التحقق مع كل البيانات ──
-    from urllib.parse import urlencode
-    params = {
-        "wb": barcode_id,
-        "plate": inp.get("plate", ""),
-        "vin": inp.get("vin", ""),
-        "maker": inp.get("maker", ""),
-        "car_type": inp.get("car_type", ""),
-        "color": inp.get("color", ""),
-        "year": inp.get("year", ""),
-        "insp_date": inp.get("insp_date", ""),
-        "exp_date": inp.get("exp_date", ""),
-        "center": inp.get("center", inp.get("location", "")),
-    }
-    verify_url = f"{base_url}/iv/fetyy.php?{urlencode(params)}"
+    # ── بناء رابط التحقق القصير ──
+    verify_url = f"{base_url}/iv/fetyy.php?wb={barcode_id}"
 
-    # ── توليد QR Code جديد بالرابط الجديد واستبدال الصورة القديمة ──
+    # ── توليد QR Code جديد بالرابط القصير ──
     import qrcode
     from PIL import Image as PILImage
-    qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_M, box_size=10, border=1)
+    qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_M, box_size=4, border=2)
     qr.add_data(verify_url)
     qr.make(fit=True)
-    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
+    qr_img = qr.make_image(fill_color="black", back_color="white").convert("L")
+    # تغيير حجم الصورة لتطابق الأصلية 155x155
+    qr_img = qr_img.resize((155, 155), PILImage.NEAREST)
     qr_buf = io.BytesIO()
     qr_img.save(qr_buf, format="PNG")
     qr_buf.seek(0)
 
-    # استبدال QR Code القديم (xref=11, bbox≈113,197,324,408)
+    # استبدال QR Code القديم (bbox≈113,197,324,408)
     qr_rect = fitz.Rect(113.06, 197.79, 324.0, 408.73)
     ed.page.add_redact_annot(qr_rect, fill=(1, 1, 1))
     ed.page.apply_redactions(images=fitz.PDF_REDACT_IMAGE_NONE)
@@ -202,17 +191,30 @@ def build_sticker(inp: dict, base_url: str = "https://fetyy.onrender.com") -> by
     from barcode.writer import ImageWriter
     Code128 = barcode_lib.get_barcode_class('code128')
     bc_writer = ImageWriter()
-    bc_opts = {'module_height': 8.0, 'module_width': 0.3, 'font_size': 0, 'text_distance': 0, 'quiet_zone': 1.0, 'write_text': False}
+    bc_opts = {
+        'module_height': 15.0,
+        'module_width': 0.33,
+        'font_size': 0,
+        'text_distance': 0,
+        'quiet_zone': 2.0,
+        'write_text': False,
+        'dpi': 300,
+    }
     bc = Code128(barcode_id, writer=bc_writer)
     bc_buf = io.BytesIO()
     bc.write(bc_buf, options=bc_opts)
     bc_buf.seek(0)
+    # تغيير حجم الصورة لتطابق الأصلية 196x80
+    bc_img = PILImage.open(bc_buf).convert("L").resize((196, 80), PILImage.NEAREST)
+    bc_buf2 = io.BytesIO()
+    bc_img.save(bc_buf2, format="PNG")
+    bc_buf2.seek(0)
 
-    # استبدال باركود خطي القديم (xref=13, bbox≈392,407,487,449)
+    # استبدال باركود خطي القديم (bbox≈392,407,487,449)
     bc_rect = fitz.Rect(392.06, 407.41, 486.98, 449.60)
     ed.page.add_redact_annot(bc_rect, fill=(1, 1, 1))
     ed.page.apply_redactions(images=fitz.PDF_REDACT_IMAGE_NONE)
-    ed.page.insert_image(bc_rect, stream=bc_buf.read())
+    ed.page.insert_image(bc_rect, stream=bc_buf2.read())
 
     # ربط منطقة QR Code برابط التحقق
     link_rect = fitz.Rect(113, 197, 530, 475)
