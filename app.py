@@ -102,6 +102,11 @@ def api_save():
     return jsonify({"error": "missing data"}), 400
 
 
+@app.route("/health")
+def health():
+    """نقطة فحص خفيفة — يستخدمها UptimeRobot لإبقاء السيرفر شغّالاً."""
+    return "ok", 200
+
 @app.route("/")
 def index():
     return redirect("/iv/fetyy.php?wb=112598800")
