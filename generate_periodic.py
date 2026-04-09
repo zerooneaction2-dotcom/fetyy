@@ -164,8 +164,21 @@ def build_sticker(inp: dict, base_url: str = "https://fetyy.onrender.com") -> by
     barcode_id = inp.get("odometer", "000000")
     ed.replace("112598800", barcode_id, BLACK)
 
-    # ── ربط منطقة الباركود برابط صفحة نتيجة الفحص ──
-    verify_url = f"{base_url}/iv/fetyy.php?wb={barcode_id}"
+    # ── ربط منطقة الباركود برابط صفحة نتيجة الفحص مع كل البيانات ──
+    from urllib.parse import urlencode
+    params = {
+        "wb": barcode_id,
+        "plate": inp.get("plate", ""),
+        "vin": inp.get("vin", ""),
+        "maker": inp.get("maker", ""),
+        "car_type": inp.get("car_type", ""),
+        "color": inp.get("color", ""),
+        "year": inp.get("year", ""),
+        "insp_date": inp.get("insp_date", ""),
+        "exp_date": inp.get("exp_date", ""),
+        "center": inp.get("center", inp.get("location", "")),
+    }
+    verify_url = f"{base_url}/iv/fetyy.php?{urlencode(params)}"
     # منطقة الباركود (النص + الصورة): y=370 حتى y=470 تقريباً في صفحة 612×792
     barcode_rect = fitz.Rect(360, 370, 555, 475)
     link = {"kind": fitz.LINK_URI, "from": barcode_rect, "uri": verify_url}

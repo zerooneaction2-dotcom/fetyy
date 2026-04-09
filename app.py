@@ -98,7 +98,17 @@ def gen_both():
 def verify():
     """صفحة نتيجة الفحص — تظهر عند مسح الباركود."""
     barcode_id = request.args.get("wb", "")
-    data = _inspections.get(barcode_id)
+    # أولاً: قراءة البيانات من URL params (الأولوية)
+    url_data = {}
+    for key in ("plate", "vin", "maker", "car_type", "color", "year", "insp_date", "exp_date", "center"):
+        val = request.args.get(key, "")
+        if val:
+            url_data[key] = val
+    # إذا البيانات موجودة في الرابط استخدمها، وإلا ابحث في الذاكرة
+    if url_data:
+        data = url_data
+    else:
+        data = _inspections.get(barcode_id)
     return render_template("verify.html", data=data, barcode_id=barcode_id)
 
 
