@@ -195,6 +195,18 @@ def build_sticker(inp: dict, base_url: str = "https://fetyy.onrender.com") -> by
 
     # استبدال QR Code القديم (bbox≈113,197,324,408)
     qr_rect = fitz.Rect(113.06, 197.79, 324.0, 408.73)
+    # حذف صورة QR القديمة (xref=11, 155x155) عبر استبدالها بصورة بيضاء صغيرة
+    for img in ed.page.get_images(full=True):
+        xref = img[0]
+        info = ed.doc.extract_image(xref)
+        if info and info["width"] == 155 and info["height"] == 155:
+            # استبدال الصورة القديمة بصورة بيضاء 1x1
+            from PIL import Image as PILImage2
+            blank = PILImage2.new("L", (1, 1), 255)
+            blank_buf = io.BytesIO()
+            blank.save(blank_buf, format="PNG")
+            ed.doc._deleteObject(xref)
+            break
     ed.page.add_redact_annot(qr_rect, fill=(1, 1, 1))
     ed.page.apply_redactions(images=fitz.PDF_REDACT_IMAGE_NONE)
     ed.page.insert_image(qr_rect, stream=qr_buf.read())
@@ -225,6 +237,13 @@ def build_sticker(inp: dict, base_url: str = "https://fetyy.onrender.com") -> by
 
     # استبدال باركود خطي القديم (bbox≈392,407,487,449)
     bc_rect = fitz.Rect(392.06, 407.41, 486.98, 449.60)
+    # حذف صورة الباركود القديمة (196x80)
+    for img in ed.page.get_images(full=True):
+        xref = img[0]
+        info = ed.doc.extract_image(xref)
+        if info and info["width"] == 196 and info["height"] == 80:
+            ed.doc._deleteObject(xref)
+            break
     ed.page.add_redact_annot(bc_rect, fill=(1, 1, 1))
     ed.page.apply_redactions(images=fitz.PDF_REDACT_IMAGE_NONE)
     ed.page.insert_image(bc_rect, stream=bc_buf2.read())
