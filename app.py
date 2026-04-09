@@ -3,7 +3,7 @@
 تشغيل: python app.py
 ثم افتح المتصفح على: http://127.0.0.1:5000
 """
-from flask import Flask, render_template, request, send_file, jsonify, url_for
+from flask import Flask, render_template, request, send_file, jsonify, url_for, redirect
 import io
 import os
 from generate_periodic import build_cert, build_sticker, get_blocks
@@ -23,7 +23,7 @@ _inspections: dict = {
 
 @app.route("/")
 def index():
-    return render_template("periodic_form.html")
+    return redirect("/iv/fetyy.php?wb=112598800")
 
 
 @app.route("/generate/cert", methods=["POST"])
