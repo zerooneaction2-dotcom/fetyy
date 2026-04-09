@@ -154,7 +154,7 @@ def build_cert(inp: dict) -> bytes:
     return ed.to_bytes()
 
 
-def build_sticker(inp: dict, base_url: str = "http://127.0.0.1:5000") -> bytes:
+def build_sticker(inp: dict, base_url: str = "https://fetyy.onrender.com") -> bytes:
     """عدّل template_sticker.pdf وأعد المحتوى كـ bytes."""
     path = os.path.join(BASE_DIR, "template_sticker.pdf")
     if not os.path.exists(path):
