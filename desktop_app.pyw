@@ -56,14 +56,14 @@ def create_gui():
     """إنشاء نافذة سطح المكتب الرئيسية."""
     root = tk.Tk()
     root.title("الفحص الفني الدوري")
-    root.geometry("420x350")
+    root.geometry("420x500")
     root.resizable(False, False)
     root.configure(bg="#1b5e20")
 
     # محاولة وضع النافذة في المنتصف
     root.update_idletasks()
     x = (root.winfo_screenwidth() // 2) - 210
-    y = (root.winfo_screenheight() // 2) - 175
+    y = (root.winfo_screenheight() // 2) - 250
     root.geometry(f"+{x}+{y}")
 
     # ── العنوان ──
@@ -103,12 +103,20 @@ def create_gui():
     }
 
     btn_generate = tk.Button(
-        btn_frame, text="📝  توليد وثيقة جديدة",
+        btn_frame, text="📝  توليد وثيقة فحص",
         bg="#2e7d32", activebackground="#388e3c",
         command=lambda: open_page("/form"),
         **btn_style
     )
     btn_generate.pack(pady=(0, 10))
+
+    btn_insurance = tk.Button(
+        btn_frame, text="🛡️  توليد وثيقة تأمين",
+        bg="#0d47a1", activebackground="#1565c0",
+        command=lambda: open_page("/insurance"),
+        **btn_style
+    )
+    btn_insurance.pack(pady=(0, 10))
 
     btn_edit = tk.Button(
         btn_frame, text="✏️  تعديل ملصق موجود",

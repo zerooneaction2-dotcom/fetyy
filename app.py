@@ -8,6 +8,7 @@ import io
 import os
 import json
 from generate_periodic import build_cert, build_sticker, get_blocks
+from generate_insurance import build_insurance
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
@@ -20,12 +21,16 @@ GITHUB_RAW = "https://raw.githubusercontent.com/zerooneaction2-dotcom/fetyy/mast
 def _fetch_github_data():
     """جلب البيانات من GitHub عند بداية التشغيل (للحفاظ عليها بعد إعادة تشغيل Render)."""
     import urllib.request
-    try:
-        req = urllib.request.Request(GITHUB_RAW, headers={"Cache-Control": "no-cache"})
-        resp = urllib.request.urlopen(req, timeout=10)
-        return json.loads(resp.read().decode("utf-8"))
-    except Exception:
-        return {}
+    for attempt in range(3):
+        try:
+            req = urllib.request.Request(GITHUB_RAW, headers={"Cache-Control": "no-cache"})
+            resp = urllib.request.urlopen(req, timeout=15)
+            return json.loads(resp.read().decode("utf-8"))
+        except Exception:
+            import time as _t
+            if attempt < 2:
+                _t.sleep(2)
+    return {}
 
 _github_fetched = False
 
@@ -33,8 +38,11 @@ def _load_inspections():
     global _github_fetched
     local = {}
     if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "r", encoding="utf-8") as f:
-            local = json.load(f)
+        try:
+            with open(DATA_FILE, "r", encoding="utf-8") as f:
+                local = json.load(f)
+        except Exception:
+            local = {}
     # عند أول تحميل على Render، ادمج بيانات GitHub مع المحلية
     if not _github_fetched:
         _github_fetched = True
@@ -46,16 +54,10 @@ def _load_inspections():
                 with open(DATA_FILE, "w", encoding="utf-8") as f:
                     json.dump(merged, f, ensure_ascii=False, indent=2)
             return merged
-    if not local:
-        return {
-            "112598800": {
-                "plate": "Z D A 6890", "vin": "WDB65256215901608",
-                "maker": "مرسيدس", "car_type": "رأس", "color": "أخضر/أزرق",
-                "year": "2011", "odometer": "112598800", "seq_no": "306574",
-                "insp_date": "2026-04-08", "exp_date": "2027-04-08",
-            }
-        }
     return local
+
+# ── جلب مسبق عند بدء التشغيل (لا ينتظر أول طلب HTTP) ────────────────────
+_load_inspections()
 
 def _save_inspection(barcode_id, data):
     inspections = _load_inspections()
@@ -196,6 +198,30 @@ def gen_both():
             mimetype="application/zip",
             as_attachment=True,
             download_name="inspection_documents.zip",
+        )
+    except FileNotFoundError as e:
+        return jsonify({"error": str(e)}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── مولّد وثيقة التأمين ──────────────────────────────────────────────────────
+
+@app.route("/insurance")
+def insurance_form():
+    return render_template("insurance_form.html")
+
+
+@app.route("/generate/insurance", methods=["POST"])
+def gen_insurance():
+    inp = request.get_json(force=True)
+    try:
+        pdf_bytes = build_insurance(inp)
+        return send_file(
+            io.BytesIO(pdf_bytes),
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name="insurance_certificate.pdf",
         )
     except FileNotFoundError as e:
         return jsonify({"error": str(e)}), 404
