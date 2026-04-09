@@ -103,10 +103,10 @@ def gen_cert():
 def gen_sticker():
     inp = request.get_json(force=True)
     try:
-        # حفظ بيانات الفحص للباركود
-        barcode_id = inp.get("odometer", "000000")
-        _save_inspection(barcode_id, inp)
         pdf_bytes = build_sticker(inp)
+        # حفظ بيانات الفحص بالمعرّف الفريد (يُضاف بواسطة build_sticker)
+        unique_id = inp.get("_uid", inp.get("odometer", "000000"))
+        _save_inspection(unique_id, inp)
         return send_file(
             io.BytesIO(pdf_bytes),
             mimetype="application/pdf",
@@ -125,11 +125,11 @@ def gen_both():
     inp = request.get_json(force=True)
     import zipfile
     try:
-        # حفظ بيانات الفحص للباركود
-        barcode_id = inp.get("odometer", "000000")
-        _save_inspection(barcode_id, inp)
         cert_bytes    = build_cert(inp)
         sticker_bytes = build_sticker(inp)
+        # حفظ بيانات الفحص بالمعرّف الفريد
+        unique_id = inp.get("_uid", inp.get("odometer", "000000"))
+        _save_inspection(unique_id, inp)
         zip_buf = io.BytesIO()
         with zipfile.ZipFile(zip_buf, "w", zipfile.ZIP_DEFLATED) as z:
             z.writestr("وثيقة_فحص_المركبة.pdf",       cert_bytes)

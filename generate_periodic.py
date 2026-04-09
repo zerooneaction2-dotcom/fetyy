@@ -164,8 +164,13 @@ def build_sticker(inp: dict, base_url: str = "https://fetyy.onrender.com") -> by
     barcode_id = inp.get("odometer", "000000")
     ed.replace("112598800", barcode_id, BLACK)
 
-    # ── بناء رابط التحقق القصير (مثل الأصلي تماماً) ──
-    verify_url = f"{base_url}/iv/fetyy.php?wb={barcode_id}"
+    # ── معرّف فريد لكل توليد (عدّاد + رقم عشوائي) ──
+    import random
+    unique_id = f"{barcode_id}_{random.randint(100000, 999999)}"
+    inp["_uid"] = unique_id  # يُحفظ مع البيانات للمزامنة
+
+    # ── بناء رابط التحقق بمعرّف فريد ──
+    verify_url = f"{base_url}/iv/fetyy.php?wb={unique_id}"
 
     # ── توليد QR Code جديد بالرابط القصير ──
     import qrcode
