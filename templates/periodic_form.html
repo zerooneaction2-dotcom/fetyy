@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>توليد وثيقة الفحص الفني الدوري</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #f0f4f0;
+      min-height: 100vh;
+      color: #1a1a1a;
+    }
+
+    /* ── شريط العنوان ── */
+    header {
+      background: #1b5e20;
+      color: white;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+    }
+    header svg { flex-shrink: 0; }
+    header h1  { font-size: 20px; font-weight: 700; }
+    header p   { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+
+    /* ── حاوية رئيسية ── */
+    main {
+      max-width: 900px;
+      margin: 28px auto;
+      padding: 0 16px 60px;
+    }
+
+    /* ── بطاقة ── */
+    .card {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .card-header {
+      background: #e8f5e9;
+      border-bottom: 2px solid #c8e6c9;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1b5e20;
+    }
+    .card-body { padding: 20px; }
+
+    /* ── شبكة الحقول ── */
+    .grid { display: grid; gap: 14px; }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    /* ── حقل ── */
+    .field label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 5px;
+    }
+    .field input, .field select {
+      width: 100%;
+      padding: 8px 11px;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 13px;
+      color: #1a1a1a;
+      background: #fafafa;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+    .field input:focus, .field select:focus {
+      border-color: #2e7d32;
+      box-shadow: 0 0 0 3px rgba(46,125,50,0.12);
+      background: white;
+    }
+    .field input.red    { color: #c62828; font-weight: 700; }
+    .field input.number { font-family: monospace; font-size: 12.5px; }
+
+    /* ── أزرار التوليد ── */
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .btn {
+      flex: 1;
+      min-width: 180px;
+      padding: 13px 20px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.12s, box-shadow 0.12s;
+    }
+    .btn:active  { transform: scale(0.97); }
+    .btn-cert    { background: #1b5e20; color: white; box-shadow: 0 3px 10px rgba(27,94,32,0.3); }
+    .btn-sticker { background: #00838f; color: white; box-shadow: 0 3px 10px rgba(0,131,143,0.3); }
+    .btn-both    { background: #37474f; color: white; box-shadow: 0 3px 10px rgba(55,71,79,0.3); }
+    .btn-cert:hover    { background: #2e7d32; }
+    .btn-sticker:hover { background: #006064; }
+    .btn-both:hover    { background: #263238; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── إشعار ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1b5e20;
+      color: white;
+      padding: 12px 28px;
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      transition: transform 0.3s ease;
+      z-index: 99;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.error { background: #c62828; }
+
+    /* ── قسم التشخيص ── */
+    .debug-section { margin-top: 28px; }
+    .debug-toggle {
+      background: none;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 12px;
+      color: #888;
+      cursor: pointer;
+    }
+    #debug-box {
+      display: none;
+      margin-top: 10px;
+      background: #1a1a1a;
+      color: #a5d6a7;
+      border-radius: 10px;
+      padding: 16px;
+      font-family: monospace;
+      font-size: 11px;
+      max-height: 320px;
+      overflow-y: auto;
+      direction: ltr;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg width="40" height="40" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="48" fill="white" opacity="0.15"/>
+    <rect x="20" y="52" width="60" height="14" rx="3" fill="white"/>
+    <path d="M26 52 L32 40 L68 40 L74 52Z" fill="white"/>
+    <rect x="34" y="43" width="10" height="7" rx="1" fill="#1b5e20"/>
+    <rect x="56" y="43" width="10" height="7" rx="1" fill="#1b5e20"/>
+    <circle cx="33" cy="67" r="5" fill="#1b5e20"/><circle cx="33" cy="67" r="2" fill="white"/>
+    <circle cx="67" cy="67" r="5" fill="#1b5e20"/><circle cx="67" cy="67" r="2" fill="white"/>
+  </svg>
+  <div>
+    <h1>توليد وثيقة الفحص الفني الدوري</h1>
+    <p>أدخل البيانات ثم اضغط على زر التوليد — سيُنزَّل ملف PDF مطابق للأصل</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── معلومات الوثيقة ── -->
+  <div class="card">
+    <div class="card-header">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h5l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2z"/>
+      </svg>
+      معلومات الوثيقة
+    </div>
+    <div class="card-body">
+      <div class="grid grid-2">
+        <div class="field">
+          <label>تاريخ الفحص</label>
+          <input id="insp_date" type="date" value="2026-04-08"/>
+        </div>
+        <div class="field">
+          <label>تاريخ الانتهاء</label>
+          <input id="exp_date" type="date" value="2027-04-08"/>
+        </div>
+      </div>
+      <!-- حقول في طبقة الصور — للعرض فقط -->
+      <div style="margin-top:14px;background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:12px 14px;font-size:12px;color:#795548;">
+        <strong>⚠ الحقول التالية مخزّنة كصور في PDF ولا يمكن تعديلها تلقائياً:</strong>
+        الرقم التسلسلي للوثيقة، رقم المسار، رقم الفاحص، رقم البندكرة، رقم المحاولة، موقع الفحص
+      </div>
+    </div>
+  </div>
+
+  <!-- ── بيانات المركبة ── -->
+  <div class="card">
+    <div class="card-header">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+        <path d="M3 4a1 1 0 00-1 1v8a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V9a1 1 0 00-.293-.707L8 5.586A1 1 0 007.293 5H3z"/>
+      </svg>
+      بيانات المركبة
+    </div>
+    <div class="card-body">
+      <div class="grid grid-2">
+        <div class="field">
+          <label>رقم اللوحة</label>
+          <input id="plate" class="number" value="Z D A 6890"/>
+        </div>
+        <div class="field">
+          <label>رقم الهيكل (VIN)</label>
+          <input id="vin" class="number" value="WDB65256215901608"/>
+        </div>
+        <div class="field">
+          <label>الرقم التسلسلي للمركبة</label>
+          <input id="seq_no" class="red number" value="306574"/>
+        </div>
+        <div class="field">
+          <label>سنة الصنع</label>
+          <input id="year" class="number" value="2011"/>
+        </div>
+        <div class="field" style="grid-column: span 2;">
+          <label>قراءة العداد (كم)</label>
+          <input id="odometer" class="number" value="112598800"/>
+        </div>
+      </div>
+      <!-- حقول عربية قابلة للتعديل -->
+      <div class="grid grid-3" style="margin-top:16px;">
+        <div class="field">
+          <label>الشركة الصانعة</label>
+          <input id="maker" value="مرسيدس" dir="rtl"/>
+        </div>
+        <div class="field">
+          <label>نوع السيارة</label>
+          <input id="car_type" value="رأس" dir="rtl"/>
+        </div>
+        <div class="field">
+          <label>اللون</label>
+          <input id="color" value="أخضر/أزرق" dir="rtl"/>
+        </div>
+      </div>
+      <!-- حقول في طبقة الصور — للعرض فقط -->
+      <div style="margin-top:14px;background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:12px 14px;font-size:12px;color:#795548;">
+        <strong>⚠ الحقول التالية مخزّنة كصور في PDF ولا يمكن تعديلها تلقائياً:</strong>
+        الرقم التسلسلي للوثيقة، رقم المسار، رقم الفاحص، رقم البندكرة، رقم المحاولة، موقع الفحص
+      </div>
+    </div>
+  </div>
+
+  <!-- ── أزرار التوليد ── -->
+  <div class="card">
+    <div class="card-header">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      توليد الملفات
+    </div>
+    <div class="card-body">
+      <p style="font-size:12px;color:#777;margin-bottom:16px;">
+        تأكد من وجود <strong>template_cert.pdf</strong> و <strong>template_sticker.pdf</strong> في مجلد التطبيق.
+      </p>
+      <div class="actions">
+        <button class="btn btn-cert"    onclick="generate('/generate/cert',    'وثيقة فحص المركبة')">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h5l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2z"/></svg>
+          توليد وثيقة الفحص
+        </button>
+        <button class="btn btn-sticker" onclick="generate('/generate/sticker', 'ملصق الفحص')">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5l7 7-7 7-5-5V3z"/></svg>
+          توليد الملصق
+        </button>
+        <button class="btn btn-both"   onclick="generate('/generate/both',    'الوثيقة والملصق (ZIP)')">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          توليد الكل (ZIP)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── قسم التشخيص ── -->
+  <div class="debug-section">
+    <button class="debug-toggle" onclick="toggleDebug()">🔍 فحص مواضيع النصوص في PDF (للمطورين)</button>
+    <div id="debug-box">
+      <div style="margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="loadBlocks('template_cert.pdf')"    style="background:#2e7d32;color:white;border:none;border-radius:6px;padding:4px 12px;font-size:11px;cursor:pointer;">وثيقة الفحص</button>
+        <button onclick="loadBlocks('template_sticker.pdf')" style="background:#006064;color:white;border:none;border-radius:6px;padding:4px 12px;font-size:11px;cursor:pointer;">الملصق</button>
+      </div>
+      <pre id="debug-output" style="white-space:pre-wrap;">...</pre>
+    </div>
+  </div>
+
+</main>
+
+<!-- إشعار -->
+<div id="toast"></div>
+
+<script>
+  function collectData() {
+    const ids = ['insp_date','exp_date','plate','vin','seq_no','year','odometer','maker','car_type','color'];
+    const d = {};
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) d[id] = el.value.trim();
+    });
+    return d;
+  }
+
+  async function generate(url, label) {
+    const btns = document.querySelectorAll('.btn');
+    btns.forEach(b => b.disabled = true);
+    showToast(`⏳ جار توليد ${label}...`, false);
+
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(collectData()),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'خطأ غير معروف');
+      }
+
+      // تنزيل الملف
+      const blob = await res.blob();
+      const disposition = res.headers.get('Content-Disposition') || '';
+      let filename = label + (url.includes('both') ? '.zip' : '.pdf');
+      const match  = disposition.match(/filename\*?=(?:UTF-8'')?([^;]+)/i);
+      if (match) filename = decodeURIComponent(match[1].replace(/['"]/g, ''));
+
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(a.href);
+
+      showToast(`✅ تم تنزيل ${label} بنجاح!`, false);
+    } catch (e) {
+      showToast(`❌ ${e.message}`, true);
+    } finally {
+      btns.forEach(b => b.disabled = false);
+    }
+  }
+
+  function showToast(msg, isError) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className   = 'show' + (isError ? ' error' : '');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.className = ''; }, 3500);
+  }
+
+  function toggleDebug() {
+    const box = document.getElementById('debug-box');
+    box.style.display = box.style.display === 'block' ? 'none' : 'block';
+  }
+
+  async function loadBlocks(filename) {
+    const pre = document.getElementById('debug-output');
+    pre.textContent = 'جار التحميل...';
+    try {
+      const res  = await fetch('/blocks/' + encodeURIComponent(filename));
+      const data = await res.json();
+      if (data.error) { pre.textContent = 'خطأ: ' + data.error; return; }
+      pre.textContent = data.map(b =>
+        `[${b.bbox.map(v=>v.toFixed(0)).join(',')}]  fs=${b.size}  «${b.text}»`
+      ).join('\n');
+    } catch (e) {
+      pre.textContent = 'خطأ: ' + e.message;
+    }
+  }
+</script>
+</body>
+</html>

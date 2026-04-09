@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>نتيجة الفحص الفني الدوري</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            padding-top: 60px;
+        }
+        .vehicle-stickerPage {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+        .vehicle-stickerPage img.logo {
+            width: 125px;
+            height: 184px;
+            margin-bottom: 54px;
+        }
+        .vehicle-sticker {
+            background: no-repeat padding-box #fff;
+            border: 4px solid #60a544;
+            border-radius: 44px;
+            width: 360px;
+            height: 480px;
+        }
+        .sticker-header {
+            background-color: #60a544;
+            color: #fff;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 36px 36px 0 0;
+        }
+        .sticker-header img.valid-img {
+            width: 37px;
+            height: 37px;
+            margin-left: 16px;
+        }
+        .card-content {
+            font-size: 16px;
+            padding: 36px 30px;
+        }
+        .card-row {
+            display: flex;
+            border-bottom: 1.5px solid #eeee;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+        }
+        .card-row label {
+            width: 124px;
+            font-size: 16px;
+            color: #8c8c8c;
+        }
+        .card-row div {
+            font-weight: 700;
+            width: 146px;
+        }
+        footer {
+            display: flex;
+            margin-top: 108px;
+            align-items: center;
+        }
+        footer .sauidi-logo img {
+            width: 170px;
+            margin-left: 90px;
+        }
+    </style>
+</head>
+<body>
+    <div class="vehicle-stickerPage">
+        <img alt="salamah-logo" class="logo" src="{{ url_for('static', filename='salamah-logo.svg') }}">
+
+        {% if data %}
+        <div class="vehicle-sticker valid">
+            <div class="sticker-header valid">
+                <img class="valid-img" src="{{ url_for('static', filename='valid.svg') }}">
+                <div>صالح وساري</div>
+            </div>
+            <div class="card-content">
+                <div class="card-row">
+                    <label>رقم اللوحة :</label>
+                    <div>{{ data.plate }}</div>
+                </div>
+                <div class="card-row">
+                    <label>رقم الهيكل :</label>
+                    <div>{{ data.vin }}</div>
+                </div>
+                <div class="card-row">
+                    <label>الشركة الصانعة :</label>
+                    <div>{{ data.maker }}</div>
+                </div>
+                <div class="card-row">
+                    <label>نوع السيارة :</label>
+                    <div>{{ data.car_type }}</div>
+                </div>
+                <div class="card-row">
+                    <label>تاريخ الفحص: </label>
+                    <div>{{ data.insp_date }}</div>
+                </div>
+                <div class="card-row">
+                    <label>مركز الفحص:</label>
+                    <div>{{ data.get('center', 'الرياض') }}</div>
+                </div>
+                <div class="card-row">
+                    <label>نوع الخدمة:</label>
+                    <div>خدمة الفحص الدوري</div>
+                </div>
+                <div class="card-row">
+                    <label>تاريخ انتهاء صلاحية الفحص: </label>
+                    <div>{{ data.exp_date }}</div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="vehicle-sticker" style="border-color:#ebb21e; display:flex; align-items:center; justify-content:center;">
+            <div style="text-align:center; color:#ebb21e; font-size:20px; font-weight:700;">
+                لا توجد بيانات لهذا الرقم
+            </div>
+        </div>
+        {% endif %}
+
+        <footer>
+            <div class="sauidi-logo">
+                <img src="{{ url_for('static', filename='saudi.svg') }}">
+            </div>
+            <div class="vision-logo">
+                <img src="{{ url_for('static', filename='2030.svg') }}">
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

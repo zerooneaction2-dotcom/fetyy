@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>نتيجة الفحص الفني الدوري | Periodic Technical Inspection</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Cairo',sans-serif;background:#f0f4f0;min-height:100vh;color:#222;font-size:14px}
+
+    /* ─── HEADER BAR ─── */
+    .header{
+      background:#fff;
+      border-bottom:4px solid #1b5e20;
+      display:flex;align-items:center;
+      justify-content:space-between;
+      padding:0;
+    }
+    .header-brand{
+      display:flex;align-items:center;gap:14px;
+      padding:10px 24px;
+    }
+    .header-logo{height:44px;width:auto}
+    .header-text{border-right:2px solid #e0e0e0;padding-right:14px}
+    .header-text .ar{font-size:14px;font-weight:900;color:#1b5e20;line-height:1.3}
+    .header-text .en{font-size:11px;color:#666;margin-top:1px}
+    .header-result{
+      display:flex;align-items:center;justify-content:center;
+      padding:0 32px;min-width:120px;align-self:stretch;
+      flex-direction:column;gap:2px;
+    }
+    .header-result.pass{background:#1b5e20}
+    .header-result.fail{background:#c62828}
+    .header-result .flag-icon{font-size:28px;line-height:1}
+    .header-result .flag-ar{color:white;font-size:16px;font-weight:900}
+    .header-result .flag-en{color:rgba(255,255,255,.8);font-size:11px}
+
+    /* ─── BREADCRUMB ─── */
+    .breadcrumb{
+      background:#f5f5f5;border-bottom:1px solid #e0e0e0;
+      padding:8px 24px;font-size:12px;color:#888;
+    }
+    .breadcrumb a{color:#1b5e20;text-decoration:none;font-weight:600}
+    .breadcrumb span{margin:0 6px;color:#ccc}
+
+    /* ─── PAGE TITLE ─── */
+    .page-title{
+      background:linear-gradient(135deg,#1b5e20 0%,#2e7d32 100%);
+      color:white;text-align:center;
+      padding:20px 16px 18px;
+    }
+    .page-title h1{font-size:22px;font-weight:900;margin-bottom:4px}
+    .page-title p{font-size:13px;opacity:.85}
+
+    /* ─── LAYOUT ─── */
+    .layout{
+      display:flex;align-items:flex-start;gap:16px;
+      max-width:960px;margin:20px auto;padding:0 16px 40px;
+    }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar{
+      width:210px;flex-shrink:0;
+      background:#0095b5;border-radius:10px;
+      overflow:hidden;
+      box-shadow:0 2px 10px rgba(0,0,0,.12);
+    }
+    .sb-title{
+      background:#007a96;color:white;
+      font-size:13px;font-weight:900;
+      padding:10px 14px;text-align:center;
+    }
+    .sb-row{padding:7px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+    .sb-row:last-child{border-bottom:none}
+    .sb-label{font-size:10px;color:rgba(255,255,255,.65);margin-bottom:1px}
+    .sb-value{color:white;font-size:12px;font-weight:600;word-break:break-all}
+    .sb-value.box{
+      background:white;color:#007a96;
+      border-radius:4px;padding:3px 8px;margin-top:3px;
+      font-weight:900;text-align:center;display:block;
+    }
+    .sb-footer{
+      background:#005f75;padding:10px 14px;text-align:center;
+    }
+    .sb-footer .lbl{font-size:10px;color:rgba(255,255,255,.65)}
+    .sb-footer .date{
+      color:white;font-size:14px;font-weight:900;
+      background:rgba(255,255,255,.12);border-radius:6px;
+      padding:4px 8px;margin-top:4px;display:block;
+    }
+    .sb-footer .sub{font-size:9px;color:rgba(255,255,255,.55);margin-top:3px}
+
+    /* ─── MAIN ─── */
+    .main{flex:1;min-width:0}
+
+    /* ─── SECTION HEADER ─── */
+    .sec-head{
+      display:flex;align-items:center;gap:8px;
+      background:#546e7a;color:white;
+      padding:9px 14px;border-radius:8px 8px 0 0;
+      font-size:13px;font-weight:700;
+    }
+    .sec-head svg{flex-shrink:0}
+
+    /* ─── DATA TABLE ─── */
+    .dtable{
+      width:100%;border-collapse:collapse;
+      background:white;border-radius:0 0 8px 8px;
+      overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);
+      margin-bottom:16px;
+    }
+    .dtable td{padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;vertical-align:middle}
+    .dtable tr:last-child td{border-bottom:none}
+    .dtable .lbl{color:#888;font-size:12px;white-space:nowrap;width:130px;background:#fafafa;border-left:1px solid #f0f0f0}
+    .dtable .val{font-weight:600;color:#222}
+    .dtable .val.red{color:#c62828}
+    .dtable .val.ltr{direction:ltr;text-align:left}
+
+    /* ─── BRAKE SECTION ─── */
+    .brake-wrap{background:white;border-radius:0 0 8px 8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:16px}
+    .brake-header{padding:8px 12px;background:#f5f5f5;font-size:13px;font-weight:700;border-bottom:1px solid #e8e8e8;color:#333}
+    .brake-grid{display:grid;grid-template-columns:1fr 1fr}
+    .brake-col{border-left:1px solid #eee}
+    .brake-col:last-child{border-left:none}
+    .brake-row{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid #f5f5f5;font-size:12px}
+    .brake-row:last-child{border-bottom:none}
+    .brake-lbl{color:#555;flex:1}
+    .brake-val{font-weight:700;color:#1b5e20;white-space:nowrap;display:flex;align-items:center;gap:4px}
+    .chk{width:16px;height:16px;border-radius:50%;background:#2e7d32;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+    .chk svg{width:9px;height:9px}
+
+    /* ─── NOTICE ─── */
+    .notice{
+      background:#e3f2fd;border:1px solid #90caf9;border-radius:8px;
+      padding:12px 14px;font-size:12px;color:#1565c0;line-height:1.8;
+      margin-bottom:16px;
+    }
+    .notice strong{font-size:13px;color:#0d47a1}
+    .notice .en{color:#1976d2;font-size:11px}
+
+    /* ─── FOOTER ─── */
+    .footer{
+      background:#1b5e20;color:white;text-align:center;
+      padding:14px 20px;font-size:12px;
+      margin-top:auto;
+    }
+    .footer-inner{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+    .footer-logo{height:32px;width:auto;opacity:.9}
+    .footer-text{font-size:11px;color:rgba(255,255,255,.8);line-height:1.6}
+    .footer a{color:#81c784;text-decoration:none}
+
+    /* ─── LINK BAR ─── */
+    .link-bar{text-align:center;font-size:12px;color:#888;margin:8px 0 0}
+    .link-bar a{color:#0095b5;font-weight:600;text-decoration:none}
+
+    /* ─── NOT FOUND ─── */
+    .nf-wrap{max-width:440px;margin:60px auto;padding:0 16px}
+    .nf-card{background:white;border-radius:14px;padding:40px 24px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+    .nf-card h2{color:#c62828;font-size:18px;margin:16px 0 8px}
+    .nf-card p{color:#888;font-size:13px;line-height:1.7}
+
+    @media(max-width:700px){
+      .layout{flex-direction:column}
+      .sidebar{width:100%}
+      .dtable td{font-size:12px;padding:6px 8px}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════ HEADER ═══════ -->
+<div class="header">
+  <div class="header-brand">
+    <img class="header-logo" src="{{ url_for('static', filename='logo.svg') }}" alt="مركز سلامة المركبات"/>
+    <div class="header-text">
+      <div class="ar">مركز سلامة المركبات</div>
+      <div class="en">Vehicles Safety Center</div>
+    </div>
+  </div>
+  {% if data %}
+  <div class="header-result pass">
+    <div class="flag-icon">✅</div>
+    <div class="flag-ar">اجتياز</div>
+    <div class="flag-en">PASS</div>
+  </div>
+  {% else %}
+  <div class="header-result fail">
+    <div class="flag-icon">❌</div>
+    <div class="flag-ar">غير موجود</div>
+    <div class="flag-en">NOT FOUND</div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ═══════ BREADCRUMB ═══════ -->
+<div class="breadcrumb">
+  <a href="/">الصفحة الرئيسية</a>
+  <span>‹</span>
+  استعلام عن حالة الفحص
+</div>
+
+<!-- ═══════ PAGE TITLE ═══════ -->
+<div class="page-title">
+  <h1>نتيجة الفحص الفني الدوري</h1>
+  <p>الاستعلام عن حالة فحص المركبة</p>
+</div>
+
+{% if data %}
+<!-- ═══════ MAIN LAYOUT ═══════ -->
+<div class="layout">
+
+  <!-- ─── SIDEBAR ─── -->
+  <div class="sidebar">
+    <div class="sb-title">وثيقة فحص المركبة</div>
+
+    <div class="sb-row">
+      <div class="sb-label">الرقم التسلسلي للوثيقة</div>
+      <div class="sb-value" style="font-size:10px">11-002-8263-92584</div>
+    </div>
+    <div class="sb-row">
+      <div class="sb-label">تاريخ الفحص</div>
+      <div class="sb-value box">{{ data.get('insp_date','—') }}</div>
+    </div>
+    <div class="sb-row">
+      <div class="sb-label">الخدمة</div>
+      <div class="sb-value" style="font-size:11px">خدمة الفحص الدوري</div>
+    </div>
+    <div class="sb-row">
+      <div class="sb-label">جهة الفحص</div>
+      <div class="sb-value" style="font-size:10px;line-height:1.5">الفحص الفني الدوري للسيارات والمركبات</div>
+    </div>
+    <div class="sb-row">
+      <div class="sb-label">موقع الفحص</div>
+      <div class="sb-value">الرياض</div>
+    </div>
+    <div class="sb-row">
+      <div class="sb-label">رقم المسار</div>
+      <div class="sb-value">08</div>
+    </div>
+    <div class="sb-row">
+      <div class="sb-label">رقم الفاحص</div>
+      <div class="sb-value">023</div>
+    </div>
+    <div class="sb-row">
+      <div class="sb-label">رقم البندكرة</div>
+      <div class="sb-value">2</div>
+    </div>
+    <div class="sb-row">
+      <div class="sb-label">رقم المحاولة</div>
+      <div class="sb-value">2</div>
+    </div>
+
+    <div class="sb-footer">
+      <div class="lbl">هذه الوثيقة صالحة</div>
+      <span class="date">{{ data.get('exp_date','—') }}</span>
+      <div class="sub">حتى تاريخ — Valid Until</div>
+    </div>
+  </div>
+
+  <!-- ─── MAIN CONTENT ─── -->
+  <div class="main">
+
+    <!-- بيانات المركبة -->
+    <div class="sec-head">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v8a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V9a1 1 0 00-.293-.707L8 5.586A1 1 0 007.293 5H3z"/></svg>
+      بيانات المركبة
+    </div>
+    <table class="dtable">
+      <tr>
+        <td class="lbl">رقم اللوحة</td>
+        <td class="val">{{ data.get('plate','—') }}</td>
+        <td class="lbl">رقم الهيكل</td>
+        <td class="val ltr">{{ data.get('vin','—') }}</td>
+      </tr>
+      <tr>
+        <td class="lbl">الشركة الصانعة</td>
+        <td class="val">{{ data.get('maker','—') }}</td>
+        <td class="lbl">نوع السيارة</td>
+        <td class="val">{{ data.get('car_type','—') }}</td>
+      </tr>
+      <tr>
+        <td class="lbl">اللون</td>
+        <td class="val">{{ data.get('color','—') }}</td>
+        <td class="lbl">سنة الصنع</td>
+        <td class="val">{{ data.get('year','—') }}</td>
+      </tr>
+      <tr>
+        <td class="lbl">الرقم التسلسلي</td>
+        <td class="val red">{{ data.get('seq_no','—') }}</td>
+        <td class="lbl">قراءة العداد</td>
+        <td class="val">{{ data.get('odometer','—') }} كم</td>
+      </tr>
+    </table>
+
+    <!-- مراءة المعايير -->
+    <div class="sec-head">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      مراءة المعايير
+    </div>
+
+    <!-- الفحص الآلي لانحراف العجلات -->
+    <div class="brake-wrap">
+      <div class="brake-header">الفحص الآلي لانحراف العجلات</div>
+      <table class="dtable" style="margin:0;border-radius:0;box-shadow:none">
+        <tr>
+          <td class="lbl">اسم المعيار</td>
+          <td class="val">نتيجة الانحراف الجانبي</td>
+          <td class="lbl">درجة الاجتياز</td>
+          <td class="val" style="color:#1b5e20">⊛ M/KM 5.1-</td>
+          <td class="lbl">القراءة</td>
+          <td class="val" style="color:#1b5e20">7.1 =&gt;</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- فحص فرامل الخدمة -->
+    <div class="brake-wrap">
+      <div class="brake-header" style="text-align:center">فحص فرامل الخدمة الأوتوماتيكي</div>
+      <div class="brake-grid">
+        <div class="brake-col">
+          <div class="brake-row">
+            <span class="brake-lbl">كفاءة الفرامل الخلفية</span>
+            <span class="brake-val"><span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></span> %52 =&gt; 9.44</span>
+          </div>
+          <div class="brake-row">
+            <span class="brake-lbl">نسبة الاحتكاك الخلفية</span>
+            <span class="brake-val"><span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></span> %2 =&gt; 1.20</span>
+          </div>
+          <div class="brake-row">
+            <span class="brake-lbl">عدم التوازن الأمامية</span>
+            <span class="brake-val"><span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></span> %2 =&gt; 8.1</span>
+          </div>
+          <div class="brake-row">
+            <span class="brake-lbl">كفاءة فرامل اليد</span>
+            <span class="brake-val"><span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></span> %43 =&gt; 9.19</span>
+          </div>
+        </div>
+        <div class="brake-col">
+          <div class="brake-row">
+            <span class="brake-lbl">كفاءة الفرامل الأمامية</span>
+            <span class="brake-val"><span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></span> %49 =&gt; 9.44</span>
+          </div>
+          <div class="brake-row">
+            <span class="brake-lbl">نسبة الاحتكاك الأمامية</span>
+            <span class="brake-val"><span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></span> %1 =&gt; 1.20</span>
+          </div>
+          <div class="brake-row">
+            <span class="brake-lbl">عدم التوازن الخلفية</span>
+            <span class="brake-val"><span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><path d="M2 5l2.5 2.5L8 3"/></svg></span> %7 =&gt; 8.1</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ملاحظة -->
+    <div class="notice">
+      <strong>يحق لمالك المركبة فرصتين</strong> لإعادة الفحص خلال 14 يوم عمل من تاريخ ووقت الفحص الأول.<br/>
+      <span class="en">The vehicle owner is eligible for two reInspection opportunities within 14 business days of the date and time of the first inspection.</span>
+    </div>
+
+    <div class="link-bar">
+      بإمكانك الاطلاع على كافة نقاط الفحص من خلال الرابط التالي:
+      <a href="https://pti.saso.gov.sa/apt" target="_blank">pti.saso.gov.sa</a>
+    </div>
+  </div>
+</div>
+
+{% else %}
+<!-- ═══════ NOT FOUND ═══════ -->
+<div class="nf-wrap">
+  <div class="nf-card">
+    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#c62828" stroke-width="1.5">
+      <circle cx="12" cy="12" r="10"/>
+      <path stroke-linecap="round" d="M12 8v4m0 4h.01"/>
+    </svg>
+    <h2>لم يُعثر على هذا الفحص</h2>
+    <p>رقم الباركود: <strong>{{ barcode_id }}</strong></p>
+    <p style="margin-top:8px;color:#aaa">تأكد من مسح الباركود الصحيح أو تواصل مع مركز الفحص</p>
+  </div>
+</div>
+{% endif %}
+
+<!-- ═══════ FOOTER ═══════ -->
+<div class="footer">
+  <div class="footer-inner">
+    <img class="footer-logo" src="{{ url_for('static', filename='footer-logo.svg') }}" alt="مركز سلامة المركبات"/>
+    <div class="footer-text">
+      جميع الحقوق محفوظة الهيئة السعودية للمواصفات والمقاييس والجودة &copy; 2026<br/>
+      تم تطويره وصيانته بواسطة ثقة لخدمات الاعمال
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>منظومة المعدات الثقيلة</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              maroon: '#7a1424',
+              lightmaroon: '#8f2030'
+            },
+            fontFamily: {
+              sans: ['Cairo', 'ui-sans-serif', 'system-ui']
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body { background: #f6f6f8; font-family: Cairo, sans-serif; }
+      .card { max-width: 920px; margin: 18px auto; }
+      .screen { display: none; }
+      .screen.active { display: block; }
+      .choice-card {
+        transition: transform 0.15s, box-shadow 0.15s;
+        cursor: pointer;
+      }
+      .choice-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(122,20,36,0.15);
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+
+    <!-- ========== شاشة البداية ========== -->
+    <div id="screen-landing" class="screen active">
+      <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-2xl">
+          <!-- الترويسة -->
+          <div class="text-center mb-10">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-maroon mb-4 shadow-lg">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h5l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-maroon">منظومة المعدات الثقيلة</h1>
+            <p class="text-gray-500 mt-2">اختر نوع الوثيقة التي تريد إنشاءها</p>
+          </div>
+
+          <!-- بطاقتا الاختيار -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- شهادة فحص المعدات -->
+            <div class="choice-card bg-white rounded-2xl shadow-md border-t-4 border-maroon p-8 flex flex-col items-center text-center"
+                 onclick="showScreen('screen-certificate')">
+              <div class="w-16 h-16 rounded-full bg-maroon/10 flex items-center justify-center mb-5">
+                <svg class="w-8 h-8 text-maroon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                </svg>
+              </div>
+              <h2 class="text-xl font-bold text-maroon mb-2">شهادة فحص المعدات</h2>
+              <p class="text-gray-500 text-sm leading-relaxed">إنشاء شهادة بيان المعدات الثقيلة المسجلة وحالتها</p>
+              <span class="mt-6 inline-block bg-maroon text-white text-sm px-6 py-2 rounded-full font-semibold">اختيار</span>
+            </div>
+
+            <!-- الفحص الدوري -->
+            <div class="choice-card bg-white rounded-2xl shadow-md border-t-4 border-amber-600 p-8 flex flex-col items-center text-center"
+                 onclick="showScreen('screen-periodic')">
+              <div class="w-16 h-16 rounded-full bg-amber-600/10 flex items-center justify-center mb-5">
+                <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                </svg>
+              </div>
+              <h2 class="text-xl font-bold text-amber-700 mb-2">الفحص الدوري</h2>
+              <p class="text-gray-500 text-sm leading-relaxed">إنشاء تقرير الفحص الدوري للمعدات الثقيلة</p>
+              <span class="mt-6 inline-block bg-amber-600 text-white text-sm px-6 py-2 rounded-full font-semibold">اختيار</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== شاشة شهادة المعدات ========== -->
+    <div id="screen-certificate" class="screen">
+      <div class="card">
+        <div class="mb-4 px-1">
+          <button onclick="showScreen('screen-landing')" class="flex items-center gap-2 text-maroon font-semibold text-sm hover:underline">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 15l6-6m0 0l-6-6m6 6H3"/>
+            </svg>
+            العودة للقائمة الرئيسية
+          </button>
+        </div>
+        <section class="bg-white shadow-lg rounded-lg overflow-hidden border-t-8 border-maroon">
+          <header class="p-6 flex items-start gap-4">
+            <div class="w-20 h-20 flex-shrink-0">
+              <svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                <rect width="100" height="100" fill="#fff" />
+                <g fill="#111">
+                  <rect x="4" y="10" width="4" height="80" />
+                  <rect x="12" y="10" width="2" height="80" />
+                  <rect x="16" y="10" width="6" height="80" />
+                  <rect x="26" y="10" width="3" height="80" />
+                  <rect x="32" y="10" width="5" height="80" />
+                  <rect x="40" y="10" width="2" height="80" />
+                  <rect x="46" y="10" width="6" height="80" />
+                </g>
+              </svg>
+            </div>
+
+            <div class="flex-1">
+              <div class="flex justify-between items-start gap-4">
+                <div>
+                  <h1 class="text-maroon text-2xl font-semibold">شهادة بيان المعدات الثقيلة المسجلة وحالتها</h1>
+                  <p class="text-sm text-gray-500 mt-1">Certificate of Registration and Condition of Heavy Equipment</p>
+                </div>
+                <div class="text-right">
+                  <div class="text-sm text-gray-600">Certificate No. <span id="certNo" class="font-semibold">H-A0000316</span></div>
+                  <div class="text-sm text-gray-600 mt-1">Issue Date: <span id="issueDate">07/12/2025</span></div>
+                  <div class="text-sm text-gray-600">Expiry: <span id="expiryDate">06/01/2026</span></div>
+                </div>
+              </div>
+
+              <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-gray-50 p-4 rounded-md">
+                  <div class="text-sm text-gray-500">الاسم</div>
+                  <div id="name" class="text-lg font-semibold mt-1">بندر محمد مانع السبيعي</div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-md">
+                  <div class="text-sm text-gray-500">رقم السجل التجاري / رقم الهوية</div>
+                  <div id="id" class="text-lg font-semibold mt-1">1015824316</div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-md">
+                  <div class="text-sm text-gray-500">رقم الهاتف</div>
+                  <div id="phone" class="text-lg font-semibold mt-1">+9666553379497</div>
+                </div>
+              </div>
+
+              <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-4">
+                  <div class="text-sm text-gray-500">المدينة | Region</div>
+                  <div id="city" class="font-medium mt-1">الرياض</div>
+                </div>
+                <div class="p-4">
+                  <div class="text-sm text-gray-500">العنوان الوطني</div>
+                  <div id="address" class="font-medium mt-1">14514</div>
+                </div>
+                <div class="p-4 flex items-end justify-end">
+                  <div class="text-sm text-gray-500">&nbsp;</div>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <div class="border-t border-gray-100">
+            <table class="w-full text-sm table-fixed">
+              <thead class="bg-gray-50">
+                <tr class="text-gray-600">
+                  <th class="p-3 w-1/5">نوع العدة</th>
+                  <th class="p-3 w-1/6">رقم التسجيل</th>
+                  <th class="p-3 w-1/6">الرقم التسلسلي / Vin / SN #</th>
+                  <th class="p-3 w-1/6">سنة الصنع</th>
+                  <th class="p-3 w-1/6">الماركة</th>
+                  <th class="p-3 w-1/12">#</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t">
+                  <td class="p-4 text-gray-700" id="equipType">راسمة ومخراج طرق (Puma bullet)</td>
+                  <td class="p-4 text-gray-700" id="regNo">H0000109</td>
+                  <td class="p-4 text-gray-700" id="vin">H-A0000316</td>
+                  <td class="p-4 text-gray-700" id="year">2008</td>
+                  <td class="p-4 text-gray-700" id="brand">Rullet</td>
+                  <td class="p-4 text-gray-700">01</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <footer class="p-4 text-xs text-gray-500 border-t">
+            اختر هذا العرض ليتناسب مع المسح الضوئي من الهاتف — الصفحة معدة للاستخدام المحمول.
+          </footer>
+        </section>
+      </div>
+    </div>
+
+    <!-- ========== شاشة الفحص الدوري — نموذج الإدخال ========== -->
+    <div id="screen-periodic" class="screen">
+      <div style="max-width:760px;margin:24px auto;padding:0 12px;">
+        <div class="mb-4">
+          <button onclick="showScreen('screen-landing')" class="flex items-center gap-2 text-green-800 font-semibold text-sm hover:underline">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 15l6-6m0 0l-6-6m6 6H3"/>
+            </svg>
+            العودة للقائمة الرئيسية
+          </button>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg p-6 border-t-4 border-green-700">
+          <h2 class="text-green-800 text-xl font-bold mb-6 flex items-center gap-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
+            بيانات وثيقة الفحص الفني الدوري
+          </h2>
+
+          <!-- معلومات الوثيقة -->
+          <div class="mb-5">
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 border-b pb-1">معلومات الوثيقة</div>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div><label class="text-xs text-gray-500 block mb-1">الرقم التسلسلي للوثيقة</label><input id="f-serial" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="11-002-8263-92584"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">تاريخ الفحص</label><input id="f-inspDate" type="date" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="2026-04-08"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">تاريخ الانتهاء</label><input id="f-expDate" type="date" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="2027-04-08"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">جهة الفحص</label><input id="f-service" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="الفحص الفني الدوري للسيارات"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">موقع الفحص</label><input id="f-location" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="الرياض"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">رقم المسار</label><input id="f-lane" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="08"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">رقم الفاحص</label><input id="f-inspector" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="023"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">رقم البندكرة</label><input id="f-sticker" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="2"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">رقم المحاولة</label><input id="f-attempt" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="2"></div>
+            </div>
+          </div>
+
+          <!-- بيانات المركبة -->
+          <div class="mb-5">
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 border-b pb-1">بيانات المركبة</div>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div><label class="text-xs text-gray-500 block mb-1">رقم اللوحة</label><input id="f-plate" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="Z D A 6890"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">الشركة الصانعة</label><input id="f-maker" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="مرسدس"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">نوع السيارة</label><input id="f-carType" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="رأس"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">رقم الهيكل (VIN)</label><input id="f-vin" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="WDB65256215901608"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">سنة الصنع</label><input id="f-year" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="2011"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">اللون</label><input id="f-color" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="أخضر / أزرق"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">طراز المركبة</label><input id="f-model" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="ر حصر / اررو رأس"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">الرقم التسلسلي</label><input id="f-seqNo" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="306574"></div>
+              <div><label class="text-xs text-gray-500 block mb-1">قراءة العداد (كم)</label><input id="f-odometer" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="112598800"></div>
+            </div>
+          </div>
+
+          <!-- فحص الانحراف -->
+          <div class="mb-5">
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 border-b pb-1">فحص الانحراف الإلي للعجلات (Wheel Alignment)</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="bg-gray-50 rounded-xl p-4">
+                <div class="text-sm font-semibold text-gray-700 mb-2">نتيجة الانحراف الجانبي</div>
+                <div class="flex gap-2 items-center">
+                  <input id="f-align-reading" class="w-24 border rounded-lg px-3 py-1.5 text-sm text-center focus:ring-2 focus:ring-green-400 outline-none" value="-5.1" placeholder="القراءة">
+                  <span class="text-gray-400 text-sm">M/KM</span>
+                  <span class="text-gray-400 mx-1">=></span>
+                  <input id="f-align-limit" class="w-20 border rounded-lg px-3 py-1.5 text-sm text-center focus:ring-2 focus:ring-green-400 outline-none" value="7.1" placeholder="الحد">
+                  <select id="f-align-pass" class="border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-green-400 outline-none">
+                    <option value="pass">مجتاز ✓</option>
+                    <option value="fail">راسب ✗</option>
+                  </select>
+                </div>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-4">
+                <div class="text-sm font-semibold text-gray-700 mb-2">درجة الاختبار</div>
+                <input id="f-align-grade" class="w-full border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-green-400 outline-none" value="فحص فرامل الخدمة الأوتوماتيكي">
+              </div>
+            </div>
+          </div>
+
+          <!-- فحص الفرامل -->
+          <div class="mb-5">
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 border-b pb-1">فحص فرامل الخدمة الأوتوماتيكي (Brake Test)</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <!-- فرامل خلفية -->
+              <div class="bg-gray-50 rounded-xl p-4 space-y-2">
+                <div class="text-sm font-bold text-gray-600 mb-1">الفرامل الخلفية</div>
+                <div class="flex items-center gap-2 text-sm">
+                  <span class="text-gray-500 w-52">كفاءة الفرامل الخلفية</span>
+                  <input id="f-brake-rear-eff" class="w-16 border rounded px-2 py-1 text-center text-sm" value="52">
+                  <span class="text-gray-400">%</span>
+                  <span class="text-gray-400">=></span>
+                  <input id="f-brake-rear-eff-lim" class="w-16 border rounded px-2 py-1 text-center text-sm" value="9.44">
+                  <select id="f-brake-rear-eff-pass" class="border rounded px-1 py-1 text-xs"><option value="pass">✓</option><option value="fail">✗</option></select>
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                  <span class="text-gray-500 w-52">نسبة الاحتكاك للفرامل الخلفية</span>
+                  <input id="f-brake-rear-imb" class="w-16 border rounded px-2 py-1 text-center text-sm" value="2">
+                  <span class="text-gray-400">%</span>
+                  <span class="text-gray-400">=></span>
+                  <input id="f-brake-rear-imb-lim" class="w-16 border rounded px-2 py-1 text-center text-sm" value="1.20">
+                  <select id="f-brake-rear-imb-pass" class="border rounded px-1 py-1 text-xs"><option value="pass">✓</option><option value="fail">✗</option></select>
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                  <span class="text-gray-500 w-52">نسبة عدم التوازن للف. الخلفية %2</span>
+                  <input id="f-brake-rear-bal" class="w-16 border rounded px-2 py-1 text-center text-sm" value="">
+                  <span class="text-gray-400">=></span>
+                  <input id="f-brake-rear-bal-lim" class="w-16 border rounded px-2 py-1 text-center text-sm" value="8.1">
+                  <select id="f-brake-rear-bal-pass" class="border rounded px-1 py-1 text-xs"><option value="pass">✓</option><option value="fail">✗</option></select>
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                  <span class="text-gray-500 w-52">كفاءة فرامل اليد</span>
+                  <input id="f-brake-hand-eff" class="w-16 border rounded px-2 py-1 text-center text-sm" value="43">
+                  <span class="text-gray-400">%</span>
+                  <span class="text-gray-400">=></span>
+                  <input id="f-brake-hand-lim" class="w-16 border rounded px-2 py-1 text-center text-sm" value="9.19">
+                  <select id="f-brake-hand-pass" class="border rounded px-1 py-1 text-xs"><option value="pass">✓</option><option value="fail">✗</option></select>
+                </div>
+              </div>
+              <!-- فرامل أمامية -->
+              <div class="bg-gray-50 rounded-xl p-4 space-y-2">
+                <div class="text-sm font-bold text-gray-600 mb-1">الفرامل الأمامية</div>
+                <div class="flex items-center gap-2 text-sm">
+                  <span class="text-gray-500 w-52">كفاءة الفرامل الأمامية</span>
+                  <input id="f-brake-front-eff" class="w-16 border rounded px-2 py-1 text-center text-sm" value="49">
+                  <span class="text-gray-400">%</span>
+                  <span class="text-gray-400">=></span>
+                  <input id="f-brake-front-eff-lim" class="w-16 border rounded px-2 py-1 text-center text-sm" value="9.44">
+                  <select id="f-brake-front-eff-pass" class="border rounded px-1 py-1 text-xs"><option value="pass">✓</option><option value="fail">✗</option></select>
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                  <span class="text-gray-500 w-52">نسبة الاحتكاك للفرامل الأمامية</span>
+                  <input id="f-brake-front-imb" class="w-16 border rounded px-2 py-1 text-center text-sm" value="1">
+                  <span class="text-gray-400">%</span>
+                  <span class="text-gray-400">=></span>
+                  <input id="f-brake-front-imb-lim" class="w-16 border rounded px-2 py-1 text-center text-sm" value="1.20">
+                  <select id="f-brake-front-imb-pass" class="border rounded px-1 py-1 text-xs"><option value="pass">✓</option><option value="fail">✗</option></select>
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                  <span class="text-gray-500 w-52">نسبة عدم التوازن للف. الأمامية %7</span>
+                  <input id="f-brake-front-bal" class="w-16 border rounded px-2 py-1 text-center text-sm" value="">
+                  <span class="text-gray-400">=></span>
+                  <input id="f-brake-front-bal-lim" class="w-16 border rounded px-2 py-1 text-center text-sm" value="8.1">
+                  <select id="f-brake-front-bal-pass" class="border rounded px-1 py-1 text-xs"><option value="pass">✓</option><option value="fail">✗</option></select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- الحكم النهائي -->
+          <div class="mb-6">
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 border-b pb-1">الحكم النهائي</div>
+            <div class="flex items-center gap-4">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="verdict" value="pass" checked class="accent-green-600"> 
+                <span class="text-green-700 font-bold">اجتياز</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="verdict" value="fail" class="accent-red-600"> 
+                <span class="text-red-600 font-bold">رفض</span>
+              </label>
+            </div>
+          </div>
+
+          <button onclick="generatePeriodic()" class="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-3 rounded-xl text-lg transition-colors">
+            توليد وثيقة الفحص الفني الدوري
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== شاشة عرض الوثيقة المولّدة — مطابقة للأصل ========== -->
+    <div id="screen-periodic-doc" class="screen">
+      <div style="max-width:860px;margin:24px auto;padding:0 12px;">
+        <div style="margin-bottom:14px;display:flex;gap:10px;align-items:center;">
+          <button onclick="showScreen('screen-periodic')" style="display:flex;align-items:center;gap:6px;color:#1b5e20;font-weight:600;font-size:13px;background:none;border:none;cursor:pointer;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15l6-6m0 0l-6-6m6 6H3"/></svg>
+            تعديل البيانات
+          </button>
+          <button onclick="window.print()" style="display:flex;align-items:center;gap:6px;background:#1b5e20;color:white;border:none;border-radius:8px;padding:6px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:Cairo,sans-serif;">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            طباعة
+          </button>
+        </div>
+
+        <!-- ======= الوثيقة الرئيسية — مطابقة للأصل ======= -->
+        <div style="direction:rtl;font-family:'Cairo',sans-serif;background:white;box-shadow:0 4px 24px rgba(0,0,0,0.13);margin:0 auto 28px auto;border:1px solid #e0e0e0;">
+
+          <!-- هيدر: الشعار + أيقونة الاجتياز -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:2px solid #e8f5e9;">
+            <!-- شعار مركز سلامة المركبات (يمين في RTL) -->
+            <div style="display:flex;align-items:center;gap:10px;">
+              <svg width="52" height="52" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="48" fill="#1b5e20"/>
+                <ellipse cx="50" cy="58" rx="28" ry="10" fill="white" opacity="0.15"/>
+                <!-- car body -->
+                <rect x="20" y="52" width="60" height="16" rx="4" fill="white"/>
+                <path d="M26 52 L32 38 L68 38 L74 52Z" fill="white"/>
+                <!-- windows -->
+                <rect x="34" y="41" width="14" height="9" rx="2" fill="#1b5e20"/>
+                <rect x="52" y="41" width="14" height="9" rx="2" fill="#1b5e20"/>
+                <!-- wheels -->
+                <circle cx="33" cy="68" r="7" fill="#1b5e20"/>
+                <circle cx="33" cy="68" r="3" fill="white"/>
+                <circle cx="67" cy="68" r="7" fill="#1b5e20"/>
+                <circle cx="67" cy="68" r="3" fill="white"/>
+              </svg>
+              <div>
+                <div style="font-weight:700;font-size:15px;color:#1b5e20;">مركز سلامة المركبات</div>
+                <div style="font-size:11px;color:#666;">Vehicles Safety Center</div>
+              </div>
+            </div>
+            <!-- أيقونة الاجتياز/الرفض (يسار في RTL) -->
+            <div style="text-align:center;">
+              <div id="sd-verdict-circle" style="width:52px;height:52px;border-radius:50%;border:3px solid #2e7d32;display:flex;align-items:center;justify-content:center;margin:0 auto;">
+                <svg width="28" height="28" fill="none" stroke="#2e7d32" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div id="sd-verdict-label" style="font-size:11px;color:#2e7d32;font-weight:700;margin-top:3px;">اجتياز</div>
+            </div>
+          </div>
+
+          <!-- جسم الوثيقة: الشريط الجانبي (يمين) + المحتوى (يسار) -->
+          <div style="display:flex;min-height:600px;">
+
+            <!-- الشريط الجانبي الأيمن -->
+            <div style="width:210px;flex-shrink:0;border-left:1px solid #e0e0e0;display:flex;flex-direction:column;">
+              <!-- عنوان الوثيقة -->
+              <div style="padding:14px 14px 10px 14px;border-bottom:1px solid #e8f5e9;">
+                <div style="font-size:26px;font-weight:900;color:#1a1a1a;line-height:1.15;">وثيقة فحص<br>المركبة</div>
+              </div>
+
+              <!-- معلومات الوثيقة -->
+              <div style="padding:10px 14px;font-size:9.5px;flex:1;overflow:hidden;">
+                <div style="color:#555;font-weight:700;font-size:9px;letter-spacing:0.5px;border-bottom:1px solid #ddd;padding-bottom:4px;margin-bottom:8px;">معلومات الوثيقة</div>
+
+                <div style="margin-bottom:5px;">
+                  <div style="color:#999;font-size:8.5px;">الرقم التسلسلي للوثيقة:</div>
+                  <div id="sd-serial" style="color:#c62828;font-weight:700;font-size:9px;word-break:break-all;"></div>
+                </div>
+                <div style="margin-bottom:5px;">
+                  <div style="color:#999;font-size:8.5px;">تاريخ الفحص:</div>
+                  <div id="sd-inspDate" style="font-weight:700;color:#212121;font-size:9px;"></div>
+                </div>
+                <div style="margin-bottom:5px;">
+                  <div style="color:#999;font-size:8.5px;">الخدمة:</div>
+                  <div style="color:#c62828;font-weight:700;font-size:9px;">خدمة الفحص الدوري</div>
+                </div>
+                <div style="margin-bottom:5px;">
+                  <div style="color:#999;font-size:8.5px;">جهة الفحص:</div>
+                  <div id="sd-service" style="font-weight:700;color:#212121;font-size:9px;line-height:1.3;"></div>
+                </div>
+                <div style="margin-bottom:5px;">
+                  <div style="color:#999;font-size:8.5px;">موقع الفحص:</div>
+                  <div id="sd-location" style="font-weight:700;color:#212121;font-size:9px;"></div>
+                </div>
+                <div style="margin-bottom:5px;">
+                  <div style="color:#999;font-size:8.5px;">رقم المسار:</div>
+                  <div id="sd-lane" style="font-weight:700;color:#212121;font-size:9px;"></div>
+                </div>
+                <div style="margin-bottom:5px;">
+                  <div style="color:#999;font-size:8.5px;">رقم الفاحص:</div>
+                  <div id="sd-inspector" style="font-weight:700;color:#212121;font-size:9px;"></div>
+                </div>
+                <div style="margin-bottom:5px;">
+                  <div style="color:#999;font-size:8.5px;">رقم البندكرة:</div>
+                  <div id="sd-sticker" style="font-weight:700;color:#212121;font-size:9px;"></div>
+                </div>
+                <div style="margin-bottom:10px;">
+                  <div style="color:#999;font-size:8.5px;">رقم المحاولة:</div>
+                  <div id="sd-attempt" style="font-weight:700;color:#212121;font-size:9px;"></div>
+                </div>
+
+                <!-- صالحة حتى -->
+                <div style="font-size:10px;font-weight:700;color:#2e7d32;line-height:1.5;margin-bottom:10px;">
+                  هذه الوثيقة صالحة<br>
+                  <span id="sd-expDate" style="color:#c62828;"></span> حتى تاريخ
+                </div>
+
+                <!-- ملاحظة مهمة -->
+                <div style="background:#fff9c4;border:1px solid #f9a825;border-radius:4px;padding:7px;margin-bottom:8px;font-size:7.5px;line-height:1.5;color:#333;">
+                  <div style="font-weight:700;color:#e65100;margin-bottom:3px;">&#9432; ملاحظة مهمة</div>
+                  <div><strong>يحق لمالك المركبة فـرصتين</strong><br>لإعادة الفحص خلال 14 يوم عمل من تاريخ ووقت الفحص الأول</div>
+                  <div style="color:#888;margin-top:4px;font-size:7px;">The vehicle owner is eligible for tow reInspection opportunities within 14 business days of the date and time of the first inspection</div>
+                </div>
+
+                <!-- رابط -->
+                <div style="font-size:8px;color:#555;margin-bottom:10px;line-height:1.5;">
+                  &#9707; يمكنك الاطلاع على كافة نقاط الفحص من خلال الرابط التالي
+                  <div style="color:#2e7d32;font-weight:700;">vi.vsafety.sa</div>
+                </div>
+
+                <!-- شعار MVPI الدائري -->
+                <div style="text-align:center;margin-bottom:8px;">
+                  <svg width="75" height="75" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="48" fill="white" stroke="#2e7d32" stroke-width="2"/>
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="#2e7d32" stroke-width="0.5"/>
+                    <circle cx="50" cy="50" r="30" fill="#eaf4eb"/>
+                    <!-- car -->
+                    <rect x="28" y="52" width="44" height="12" rx="3" fill="#1b5e20"/>
+                    <path d="M32 52 L37 42 L63 42 L68 52Z" fill="#1b5e20"/>
+                    <rect x="37" y="44" width="10" height="7" rx="1" fill="white" opacity="0.7"/>
+                    <rect x="53" y="44" width="10" height="7" rx="1" fill="white" opacity="0.7"/>
+                    <circle cx="36" cy="64" r="5" fill="#1b5e20"/><circle cx="36" cy="64" r="2.5" fill="white"/>
+                    <circle cx="64" cy="64" r="5" fill="#1b5e20"/><circle cx="64" cy="64" r="2.5" fill="white"/>
+                    <!-- circular text top -->
+                    <path id="topArc" d="M 12 50 A 38 38 0 0 1 88 50" fill="none"/>
+                    <text font-size="6" fill="#2e7d32" font-family="Cairo,sans-serif" font-weight="600">
+                      <textPath href="#topArc" startOffset="5%">الفحص الفني الدوري للسيارات والمركبات</textPath>
+                    </text>
+                    <!-- circular text bottom -->
+                    <path id="botArc" d="M 12 52 A 38 38 0 0 0 88 52" fill="none"/>
+                    <text font-size="5" fill="#2e7d32" font-family="Arial,sans-serif">
+                      <textPath href="#botArc" startOffset="3%">MOTOR VEHICLES PERIODIC INSPECTION</textPath>
+                    </text>
+                    <!-- مو.ث -->
+                    <text x="50" y="38" text-anchor="middle" font-size="5.5" fill="#c62828" font-family="Cairo,sans-serif">مو.ث-1-V&#x2019;&#x200F;&#x661;</text>
+                  </svg>
+                </div>
+
+                <!-- disclaimer -->
+                <div style="font-size:7.5px;color:#666;margin-bottom:8px;line-height:1.4;">
+                  هذه الوثيقة لا تحتاج إلى تصديق،<br>
+                  للتحقق قم بمسح الكود التالي أو<br>
+                  قم بزيارة: <span style="color:#2e7d32;font-weight:700;">vi.vsafety.sa</span>
+                </div>
+
+                <!-- QR كود -->
+                <div style="text-align:center;">
+                  <svg viewBox="0 0 90 90" width="90" height="90" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="90" height="90" fill="white"/>
+                    <!-- corner squares -->
+                    <rect x="2" y="2" width="26" height="26" rx="2" fill="none" stroke="#000" stroke-width="2.5"/>
+                    <rect x="7" y="7" width="16" height="16" fill="#000"/>
+                    <rect x="62" y="2" width="26" height="26" rx="2" fill="none" stroke="#000" stroke-width="2.5"/>
+                    <rect x="67" y="7" width="16" height="16" fill="#000"/>
+                    <rect x="2" y="62" width="26" height="26" rx="2" fill="none" stroke="#000" stroke-width="2.5"/>
+                    <rect x="7" y="67" width="16" height="16" fill="#000"/>
+                    <!-- data dots -->
+                    <rect x="32" y="2" width="5" height="5" fill="#000"/><rect x="40" y="2" width="5" height="5" fill="#000"/>
+                    <rect x="48" y="5" width="5" height="5" fill="#000"/><rect x="32" y="10" width="5" height="5" fill="#000"/>
+                    <rect x="48" y="15" width="5" height="5" fill="#000"/><rect x="40" y="20" width="5" height="5" fill="#000"/>
+                    <rect x="32" y="36" width="9" height="5" fill="#000"/><rect x="45" y="36" width="5" height="5" fill="#000"/>
+                    <rect x="54" y="36" width="5" height="5" fill="#000"/><rect x="63" y="36" width="5" height="5" fill="#000"/>
+                    <rect x="72" y="36" width="5" height="5" fill="#000"/><rect x="81" y="36" width="5" height="5" fill="#000"/>
+                    <rect x="32" y="45" width="5" height="9" fill="#000"/><rect x="41" y="45" width="9" height="5" fill="#000"/>
+                    <rect x="54" y="45" width="5" height="5" fill="#000"/><rect x="63" y="45" width="5" height="5" fill="#000"/>
+                    <rect x="72" y="45" width="5" height="9" fill="#000"/><rect x="32" y="58" width="5" height="5" fill="#000"/>
+                    <rect x="41" y="58" width="5" height="5" fill="#000"/><rect x="50" y="58" width="9" height="5" fill="#000"/>
+                    <rect x="63" y="58" width="5" height="5" fill="#000"/><rect x="32" y="67" width="9" height="5" fill="#000"/>
+                    <rect x="45" y="67" width="5" height="5" fill="#000"/><rect x="54" y="67" width="5" height="5" fill="#000"/>
+                    <rect x="63" y="67" width="5" height="5" fill="#000"/><rect x="72" y="67" width="9" height="5" fill="#000"/>
+                    <rect x="32" y="76" width="5" height="9" fill="#000"/><rect x="41" y="79" width="9" height="5" fill="#000"/>
+                    <rect x="54" y="76" width="5" height="9" fill="#000"/><rect x="63" y="79" width="5" height="5" fill="#000"/>
+                    <rect x="72" y="76" width="5" height="9" fill="#000"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- المحتوى الرئيسي الأيسر -->
+            <div style="flex:1;padding:12px 16px;">
+
+              <!-- بيانات المركبة -->
+              <div style="background:#f1f8e9;border:1px solid #c5e1a5;border-radius:6px;padding:10px 12px;margin-bottom:12px;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="#2e7d32"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v8a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V9a1 1 0 00-.293-.707L8 5.586A1 1 0 007.293 5H3z"/></svg>
+                  <span style="font-weight:700;font-size:11px;color:#1b5e20;">بيانات المركبة</span>
+                </div>
+                <table style="width:100%;font-size:10px;border-collapse:collapse;">
+                  <tr>
+                    <td style="padding:2px 6px;color:#777;width:18%;">رقم الهيكل:</td>
+                    <td style="padding:2px 6px;font-weight:600;font-size:9.5px;width:32%;" id="sd-vin"></td>
+                    <td style="padding:2px 6px;color:#777;width:18%;">رقم اللوحة:</td>
+                    <td style="padding:2px 6px;font-weight:700;font-size:13px;" id="sd-plate"></td>
+                  </tr>
+                  <tr style="background:rgba(255,255,255,0.6);">
+                    <td style="padding:2px 6px;color:#777;">طراز المركبة:</td>
+                    <td style="padding:2px 6px;font-weight:600;" id="sd-model"></td>
+                    <td style="padding:2px 6px;color:#777;">الشركة الصانعة:</td>
+                    <td style="padding:2px 6px;font-weight:600;" id="sd-maker"></td>
+                  </tr>
+                  <tr>
+                    <td style="padding:2px 6px;color:#777;">اللون:</td>
+                    <td style="padding:2px 6px;font-weight:600;" id="sd-color"></td>
+                    <td style="padding:2px 6px;color:#777;">نوع السيارة:</td>
+                    <td style="padding:2px 6px;font-weight:600;" id="sd-carType"></td>
+                  </tr>
+                  <tr style="background:rgba(255,255,255,0.6);">
+                    <td style="padding:2px 6px;color:#777;">الرقم التسلسلي:</td>
+                    <td style="padding:2px 6px;font-weight:700;color:#c62828;" id="sd-seqNo"></td>
+                    <td style="padding:2px 6px;color:#777;">سنة الصنع:</td>
+                    <td style="padding:2px 6px;font-weight:600;" id="sd-year"></td>
+                  </tr>
+                  <tr>
+                    <td style="padding:2px 6px;color:#777;">قراءة العداد:</td>
+                    <td style="padding:2px 6px;font-weight:600;" colspan="3" id="sd-odometer"></td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- قراءة المعايير -->
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+                <svg width="14" height="14" fill="none" stroke="#2e7d32" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                <span style="font-weight:700;font-size:11px;color:#1b5e20;">قراءة المعايير</span>
+              </div>
+
+              <!-- جدول الانحراف -->
+              <div style="margin-bottom:10px;">
+                <div style="background:#2e7d32;color:white;font-size:10px;font-weight:700;padding:4px 10px;">الفحص الإلي لانحراف العجلات</div>
+                <table style="width:100%;border:1px solid #ddd;border-top:none;border-collapse:collapse;font-size:10px;">
+                  <thead>
+                    <tr style="background:#f5f5f5;">
+                      <th style="padding:4px 8px;text-align:right;color:#666;font-weight:600;border-bottom:1px solid #ddd;">اسم المعيار</th>
+                      <th style="padding:4px 8px;text-align:center;color:#666;font-weight:600;border-bottom:1px solid #ddd;border-right:1px solid #ddd;">القراءة</th>
+                      <th style="padding:4px 8px;width:28px;border-bottom:1px solid #ddd;"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="padding:5px 8px;">
+                        <div style="font-weight:600;" id="sd-align-grade"></div>
+                        <div style="color:#999;font-size:9px;">درجة الاختبار</div>
+                      </td>
+                      <td style="padding:5px 8px;text-align:center;font-weight:700;border-right:1px solid #ddd;">
+                        <span id="sd-align-reading"></span> M/KM <span style="color:#666;"> =&gt; </span> <span id="sd-align-limit"></span>
+                      </td>
+                      <td style="padding:5px 8px;text-align:center;" id="sd-align-icon"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- جدولا الفرامل جنباً إلى جنب -->
+              <div>
+                <div style="background:#2e7d32;color:white;font-size:10px;font-weight:700;padding:4px 10px;">فحص فرامل الخدمة الأوتوماتيكي</div>
+                <div style="display:flex;border:1px solid #ddd;border-top:none;">
+                  <!-- الفرامل الخلفية (يمين في RTL = أول) -->
+                  <div style="flex:1;border-left:1px solid #ddd;">
+                    <table style="width:100%;border-collapse:collapse;font-size:9.5px;">
+                      <thead>
+                        <tr style="background:#f5f5f5;">
+                          <th style="padding:3px 6px;text-align:right;color:#666;font-weight:600;border-bottom:1px solid #ddd;">اسم المعيار</th>
+                          <th style="padding:3px 6px;text-align:center;color:#666;font-weight:600;border-bottom:1px solid #ddd;border-right:1px solid #ddd;">القراءة</th>
+                          <th style="padding:3px 6px;width:24px;border-bottom:1px solid #ddd;"></th>
+                        </tr>
+                      </thead>
+                      <tbody id="sd-brake-rear-rows"></tbody>
+                    </table>
+                  </div>
+                  <!-- الفرامل الأمامية (يسار في RTL = ثانٍ) -->
+                  <div style="flex:1;">
+                    <table style="width:100%;border-collapse:collapse;font-size:9.5px;">
+                      <thead>
+                        <tr style="background:#f5f5f5;">
+                          <th style="padding:3px 6px;text-align:right;color:#666;font-weight:600;border-bottom:1px solid #ddd;">اسم المعيار</th>
+                          <th style="padding:3px 6px;text-align:center;color:#666;font-weight:600;border-bottom:1px solid #ddd;border-right:1px solid #ddd;">القراءة</th>
+                          <th style="padding:3px 6px;width:24px;border-bottom:1px solid #ddd;"></th>
+                        </tr>
+                      </thead>
+                      <tbody id="sd-brake-front-rows"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- فوتر الوثيقة -->
+          <div style="border-top:1px solid #e0e0e0;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;background:#fafafa;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <!-- شعار SASO الملوّن -->
+              <svg width="38" height="30" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="33,4 68,72 4,72" fill="#4caf50"/>
+                <polygon points="56,10 96,72 22,72" fill="#0288d1"/>
+                <rect x="18" y="50" width="64" height="22" rx="3" fill="#795548"/>
+                <text x="50" y="66" text-anchor="middle" font-size="14" font-weight="bold" fill="white" font-family="Arial" letter-spacing="1">SASO</text>
+              </svg>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#333;">المواصفات السعودية</div>
+                <div style="font-size:8px;color:#888;">Saudi Standards</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:14px;color:#999;">
+              <span>&#9664;</span><span>&#9664;</span>
+              <span style="font-size:11px;font-weight:600;color:#555;margin:0 8px;">1/1</span>
+              <span>&#9654;</span><span>&#9654;</span>
+            </div>
+            <div style="text-align:left;">
+              <div style="font-size:9px;color:#555;font-weight:600;">للشكاوي والاقتراحات</div>
+              <div style="display:flex;align-items:center;gap:4px;">
+                <svg width="11" height="11" fill="none" stroke="#666" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.13 8.82 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.29 6.29l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                <span style="font-size:10px;font-weight:700;color:#333;">info@saso.gov.sa</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======= ملصق الفحص الفني الدوري ======= -->
+        <div style="display:flex;justify-content:center;margin-bottom:24px;">
+          <div style="width:420px;background:white;border:2.5px solid #4caf50;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.12);direction:rtl;font-family:'Cairo',sans-serif;">
+            <div style="display:flex;min-height:200px;">
+
+              <!-- يمين: النص (RTL أول) -->
+              <div style="flex:1;padding:20px 16px 16px 10px;display:flex;flex-direction:column;justify-content:space-between;border-left:1px solid #e8f5e9;">
+                <div>
+                  <div style="font-size:36px;font-weight:900;color:#1b5e20;line-height:1.05;margin-bottom:8px;">الفحص<br>الفنـي<br>الـدوري</div>
+                  <div style="font-size:15px;font-weight:600;color:#2e7d32;line-height:1.3;">Periodic<br>Technical<br>Inspection</div>
+                  <div style="border-top:2px solid #a0522d;margin-top:10px;padding-top:10px;">
+                    <div style="font-size:22px;font-weight:900;color:#2e7d32;line-height:1.1;">أُصـدر فـي</div>
+                    <div style="font-size:18px;font-weight:900;color:#0097a7;" id="sd-sticker-year">Issued in 2026</div>
+                  </div>
+                </div>
+                <!-- باركود -->
+                <div style="margin-top:12px;">
+                  <svg viewBox="0 0 160 36" style="width:100%;" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="160" height="36" fill="white"/>
+                    <g fill="#111">
+                      <rect x="2" y="1" width="3" height="28"/><rect x="7" y="1" width="1" height="28"/>
+                      <rect x="10" y="1" width="4" height="28"/><rect x="16" y="1" width="2" height="28"/>
+                      <rect x="20" y="1" width="3" height="28"/><rect x="25" y="1" width="1" height="28"/>
+                      <rect x="29" y="1" width="4" height="28"/><rect x="35" y="1" width="2" height="28"/>
+                      <rect x="39" y="1" width="3" height="28"/><rect x="44" y="1" width="1" height="28"/>
+                      <rect x="47" y="1" width="4" height="28"/><rect x="53" y="1" width="2" height="28"/>
+                      <rect x="57" y="1" width="3" height="28"/><rect x="62" y="1" width="1" height="28"/>
+                      <rect x="65" y="1" width="4" height="28"/><rect x="71" y="1" width="2" height="28"/>
+                      <rect x="75" y="1" width="1" height="28"/><rect x="78" y="1" width="3" height="28"/>
+                      <rect x="83" y="1" width="2" height="28"/><rect x="87" y="1" width="4" height="28"/>
+                      <rect x="93" y="1" width="1" height="28"/><rect x="96" y="1" width="3" height="28"/>
+                      <rect x="101" y="1" width="2" height="28"/><rect x="105" y="1" width="4" height="28"/>
+                      <rect x="111" y="1" width="1" height="28"/><rect x="114" y="1" width="3" height="28"/>
+                      <rect x="119" y="1" width="2" height="28"/><rect x="123" y="1" width="4" height="28"/>
+                      <rect x="129" y="1" width="1" height="28"/><rect x="132" y="1" width="3" height="28"/>
+                      <rect x="137" y="1" width="2" height="28"/><rect x="141" y="1" width="4" height="28"/>
+                      <rect x="147" y="1" width="1" height="28"/><rect x="150" y="1" width="4" height="28"/>
+                      <rect x="156" y="1" width="2" height="28"/>
+                    </g>
+                  </svg>
+                  <div id="sd-sticker-barcode" style="text-align:center;font-size:11px;font-family:monospace;color:#333;margin-top:2px;"></div>
+                </div>
+              </div>
+
+              <!-- يسار: شعار + QR (RTL ثاني = يسار) -->
+              <div style="width:185px;flex-shrink:0;padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;">
+                <!-- شعار SASO -->
+                <div style="text-align:center;">
+                  <!-- شعار SASO الملوّن الأصلي -->
+                  <svg viewBox="0 0 100 80" style="width:90px;height:72px;" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="33,4 68,72 4,72" fill="#4caf50"/>
+                    <polygon points="56,10 96,72 22,72" fill="#0288d1"/>
+                    <rect x="18" y="50" width="64" height="22" rx="3" fill="#795548"/>
+                    <text x="50" y="67" text-anchor="middle" font-size="14" font-weight="bold" fill="white" font-family="Arial" letter-spacing="1">SASO</text>
+                  </svg>
+                  <div style="font-size:11px;font-weight:700;color:#333;line-height:1.3;">المواصفات السعودية</div>
+                  <div style="font-size:10px;color:#666;">Saudi Standards</div>
+                </div>
+
+                <!-- QR كود كبير -->
+                <div style="border:2.5px solid #222;border-radius:4px;padding:4px;margin:8px 0;">
+                  <svg viewBox="0 0 90 90" width="110" height="110" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="90" height="90" fill="white"/>
+                    <rect x="2" y="2" width="26" height="26" rx="2" fill="none" stroke="#000" stroke-width="2.5"/>
+                    <rect x="7" y="7" width="16" height="16" fill="#000"/>
+                    <rect x="62" y="2" width="26" height="26" rx="2" fill="none" stroke="#000" stroke-width="2.5"/>
+                    <rect x="67" y="7" width="16" height="16" fill="#000"/>
+                    <rect x="2" y="62" width="26" height="26" rx="2" fill="none" stroke="#000" stroke-width="2.5"/>
+                    <rect x="7" y="67" width="16" height="16" fill="#000"/>
+                    <rect x="32" y="2" width="5" height="5" fill="#000"/><rect x="40" y="2" width="5" height="5" fill="#000"/>
+                    <rect x="48" y="6" width="5" height="5" fill="#000"/><rect x="55" y="2" width="5" height="5" fill="#000"/>
+                    <rect x="32" y="12" width="5" height="5" fill="#000"/><rect x="48" y="16" width="5" height="5" fill="#000"/>
+                    <rect x="40" y="20" width="5" height="5" fill="#000"/><rect x="55" y="14" width="5" height="5" fill="#000"/>
+                    <rect x="32" y="36" width="10" height="5" fill="#000"/><rect x="46" y="36" width="5" height="5" fill="#000"/>
+                    <rect x="55" y="36" width="5" height="5" fill="#000"/><rect x="64" y="36" width="5" height="5" fill="#000"/>
+                    <rect x="73" y="36" width="5" height="5" fill="#000"/><rect x="82" y="36" width="5" height="5" fill="#000"/>
+                    <rect x="32" y="45" width="5" height="10" fill="#000"/><rect x="41" y="45" width="10" height="5" fill="#000"/>
+                    <rect x="55" y="45" width="5" height="5" fill="#000"/><rect x="64" y="45" width="5" height="5" fill="#000"/>
+                    <rect x="73" y="45" width="5" height="10" fill="#000"/><rect x="32" y="59" width="5" height="5" fill="#000"/>
+                    <rect x="41" y="59" width="5" height="5" fill="#000"/><rect x="50" y="59" width="10" height="5" fill="#000"/>
+                    <rect x="64" y="59" width="5" height="5" fill="#000"/><rect x="32" y="68" width="10" height="5" fill="#000"/>
+                    <rect x="46" y="68" width="5" height="5" fill="#000"/><rect x="55" y="68" width="5" height="5" fill="#000"/>
+                    <rect x="64" y="68" width="5" height="5" fill="#000"/><rect x="73" y="68" width="9" height="5" fill="#000"/>
+                    <rect x="32" y="77" width="5" height="9" fill="#000"/><rect x="41" y="80" width="10" height="5" fill="#000"/>
+                    <rect x="55" y="77" width="5" height="9" fill="#000"/><rect x="64" y="80" width="5" height="5" fill="#000"/>
+                    <rect x="73" y="77" width="5" height="9" fill="#000"/>
+                  </svg>
+                </div>
+
+                <!-- شعار VSC المثلث الملوّن -->
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <svg viewBox="0 0 100 80" width="42" height="34" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="33,4 68,72 4,72" fill="#4caf50"/>
+                    <polygon points="56,10 96,72 22,72" fill="#0288d1"/>
+                    <rect x="18" y="50" width="64" height="22" rx="3" fill="#795548"/>
+                    <!-- car silhouette in white -->
+                    <rect x="30" y="53" width="40" height="10" rx="2" fill="white" opacity="0.35"/>
+                    <path d="M33 53 L37 47 L63 47 L67 53Z" fill="white" opacity="0.35"/>
+                  </svg>
+                  <div style="font-size:9px;color:#333;line-height:1.4;">مركز سلامة المركبات<br><span style="color:#888;">Vehicles Safety Center</span></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <script>
+      // ===== التنقل بين الشاشات =====
+      function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        window.scrollTo(0, 0);
+      }
+
+      // ===== قراءة معاملات URL =====
+      function param(name, fallback) {
+        const url = new URL(window.location.href);
+        return url.searchParams.get(name) || fallback || '';
+      }
+
+      // ===== شهادة المعدات =====
+      document.getElementById('name').textContent       = param('name',     'بندر محمد مانع السبيعي');
+      document.getElementById('id').textContent         = param('id',       '1015824316');
+      document.getElementById('phone').textContent      = param('phone',    '+9666553379497');
+      document.getElementById('city').textContent       = param('city',     'الرياض');
+      document.getElementById('address').textContent    = param('address',  '14514');
+      document.getElementById('certNo').textContent     = param('certNo',   'H-A0000316');
+      document.getElementById('issueDate').textContent  = param('issueDate','07/12/2025');
+      document.getElementById('expiryDate').textContent = param('expiry',   '06/01/2026');
+      document.getElementById('equipType').textContent  = param('type',     'راسمة ومخراج طرق (Puma bullet)');
+      document.getElementById('regNo').textContent      = param('regNo',    'H0000109');
+      document.getElementById('vin').textContent        = param('vin',      'H-A0000316');
+      document.getElementById('year').textContent       = param('year',     '2008');
+      document.getElementById('brand').textContent      = param('brand',    'Rullet');
+
+      // ===== أيقونة اجتياز/رفض =====
+      function passIcon(sel) {
+        if (sel === 'pass') return '<svg width="18" height="18" fill="none" stroke="#2e7d32" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+        return '<svg width="18" height="18" fill="none" stroke="#c62828" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>';
+      }
+
+      // ===== توليد الوثيقة =====
+      function generatePeriodic() {
+        const g = id => document.getElementById(id).value;
+        const gs = id => document.getElementById(id);
+        const verdict = document.querySelector('input[name="verdict"]:checked').value;
+
+        // الشريط الجانبي
+        gs('sd-serial').textContent    = g('f-serial');
+        gs('sd-inspDate').textContent  = g('f-inspDate');
+        gs('sd-expDate').textContent   = g('f-expDate');
+        gs('sd-service').textContent   = g('f-service');
+        gs('sd-location').textContent  = g('f-location');
+        gs('sd-lane').textContent      = g('f-lane');
+        gs('sd-inspector').textContent = g('f-inspector');
+        gs('sd-sticker').textContent   = g('f-sticker');
+        gs('sd-attempt').textContent   = g('f-attempt');
+
+        // بيانات المركبة
+        gs('sd-vin').textContent      = g('f-vin');
+        gs('sd-plate').textContent    = g('f-plate');
+        gs('sd-model').textContent    = g('f-model');
+        gs('sd-maker').textContent    = g('f-maker');
+        gs('sd-color').textContent    = g('f-color');
+        gs('sd-carType').textContent  = g('f-carType');
+        gs('sd-seqNo').textContent    = g('f-seqNo');
+        gs('sd-year').textContent     = g('f-year');
+        gs('sd-odometer').textContent = g('f-odometer');
+
+        // الانحراف
+        gs('sd-align-grade').textContent   = g('f-align-grade');
+        gs('sd-align-reading').textContent = g('f-align-reading');
+        gs('sd-align-limit').textContent   = g('f-align-limit');
+        gs('sd-align-icon').innerHTML      = passIcon(g('f-align-pass'));
+
+        // فرامل خلفية
+        const rearRows = [
+          { label:'كفاءة الفرامل الخلفية',                      r:g('f-brake-rear-eff'),  u:'%', lim:g('f-brake-rear-eff-lim'),  p:document.getElementById('f-brake-rear-eff-pass').value },
+          { label:'نسبة الاحتكاك للفرامل الخلفية',              r:g('f-brake-rear-imb'),  u:'%', lim:g('f-brake-rear-imb-lim'),  p:document.getElementById('f-brake-rear-imb-pass').value },
+          { label:'نسبة عدم التوازن للفرامل الخلفية%2 الثقيلة والمتوسطة', r:g('f-brake-rear-bal'), u:'', lim:g('f-brake-rear-bal-lim'), p:document.getElementById('f-brake-rear-bal-pass').value },
+          { label:'كفاءة فرامل اليد',                            r:g('f-brake-hand-eff'),  u:'%', lim:g('f-brake-hand-lim'),      p:document.getElementById('f-brake-hand-pass').value },
+        ];
+        const frontRows = [
+          { label:'كفاءة الفرامل الأمامية',                     r:g('f-brake-front-eff'), u:'%', lim:g('f-brake-front-eff-lim'), p:document.getElementById('f-brake-front-eff-pass').value },
+          { label:'نسبة الاحتكاك للفرامل الأمامية',             r:g('f-brake-front-imb'), u:'%', lim:g('f-brake-front-imb-lim'), p:document.getElementById('f-brake-front-imb-pass').value },
+          { label:'نسبة عدم التوازن للفرامل الأمامية%7 الثقيلة والمتوسطة', r:g('f-brake-front-bal'), u:'', lim:g('f-brake-front-bal-lim'), p:document.getElementById('f-brake-front-bal-pass').value },
+        ];
+
+        function fillBrakeTable(tbodyId, rows) {
+          const tb = document.getElementById(tbodyId);
+          tb.innerHTML = '';
+          rows.forEach((row, i) => {
+            const tr = document.createElement('tr');
+            tr.style.background = i % 2 === 0 ? 'white' : '#f9f9f9';
+            tr.style.borderTop = '1px solid #eee';
+            tr.innerHTML = `
+              <td style="padding:4px 6px;color:#444;">${row.label}</td>
+              <td style="padding:4px 6px;text-align:center;font-weight:700;border-right:1px solid #eee;">${row.lim} =&gt; ${row.r}${row.u}</td>
+              <td style="padding:4px 6px;text-align:center;">${passIcon(row.p)}</td>
+            `;
+            tb.appendChild(tr);
+          });
+        }
+        fillBrakeTable('sd-brake-rear-rows', rearRows);
+        fillBrakeTable('sd-brake-front-rows', frontRows);
+
+        // أيقونة الحكم في الهيدر
+        const circle = document.getElementById('sd-verdict-circle');
+        const label  = document.getElementById('sd-verdict-label');
+        if (verdict === 'pass') {
+          circle.style.borderColor = '#2e7d32';
+          circle.innerHTML = '<svg width="28" height="28" fill="none" stroke="#2e7d32" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+          label.style.color = '#2e7d32';
+          label.textContent = 'اجتياز';
+        } else {
+          circle.style.borderColor = '#c62828';
+          circle.innerHTML = '<svg width="28" height="28" fill="none" stroke="#c62828" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>';
+          label.style.color = '#c62828';
+          label.textContent = 'رفض';
+        }
+
+        // الملصق
+        const year = g('f-inspDate').substring(0, 4);
+        document.getElementById('sd-sticker-year').textContent  = 'Issued in ' + year;
+        document.getElementById('sd-sticker-barcode').textContent = g('f-odometer');
+
+        showScreen('screen-periodic-doc');
+      }
+
+      // ===== page param في URL =====
+      const page = param('page', '');
+      if (page === 'certificate') showScreen('screen-certificate');
+      else if (page === 'periodic') showScreen('screen-periodic');
+    </script>
+  </body>
+</html>
