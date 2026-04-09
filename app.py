@@ -26,6 +26,11 @@ def index():
     return redirect("/iv/fetyy.php?wb=112598800")
 
 
+@app.route("/form")
+def form():
+    return render_template("periodic_form.html")
+
+
 @app.route("/generate/cert", methods=["POST"])
 def gen_cert():
     inp = request.get_json(force=True)

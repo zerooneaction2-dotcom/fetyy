@@ -164,7 +164,7 @@ def build_sticker(inp: dict, base_url: str = "https://fetyy.onrender.com") -> by
     barcode_id = inp.get("odometer", "000000")
     ed.replace("112598800", barcode_id, BLACK)
 
-    # ── ربط منطقة الباركود برابط صفحة نتيجة الفحص مع كل البيانات ──
+    # ── بناء رابط التحقق مع كل البيانات ──
     from urllib.parse import urlencode
     params = {
         "wb": barcode_id,
@@ -179,9 +179,44 @@ def build_sticker(inp: dict, base_url: str = "https://fetyy.onrender.com") -> by
         "center": inp.get("center", inp.get("location", "")),
     }
     verify_url = f"{base_url}/iv/fetyy.php?{urlencode(params)}"
-    # منطقة الباركود (النص + الصورة): y=370 حتى y=470 تقريباً في صفحة 612×792
-    barcode_rect = fitz.Rect(360, 370, 555, 475)
-    link = {"kind": fitz.LINK_URI, "from": barcode_rect, "uri": verify_url}
+
+    # ── توليد QR Code جديد بالرابط الجديد واستبدال الصورة القديمة ──
+    import qrcode
+    from PIL import Image as PILImage
+    qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_M, box_size=10, border=1)
+    qr.add_data(verify_url)
+    qr.make(fit=True)
+    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
+    qr_buf = io.BytesIO()
+    qr_img.save(qr_buf, format="PNG")
+    qr_buf.seek(0)
+
+    # استبدال QR Code القديم (xref=11, bbox≈113,197,324,408)
+    qr_rect = fitz.Rect(113.06, 197.79, 324.0, 408.73)
+    ed.page.add_redact_annot(qr_rect, fill=(1, 1, 1))
+    ed.page.apply_redactions(images=fitz.PDF_REDACT_IMAGE_NONE)
+    ed.page.insert_image(qr_rect, stream=qr_buf.read())
+
+    # ── توليد باركود خطي جديد واستبدال القديم ──
+    import barcode as barcode_lib
+    from barcode.writer import ImageWriter
+    Code128 = barcode_lib.get_barcode_class('code128')
+    bc_writer = ImageWriter()
+    bc_opts = {'module_height': 8.0, 'module_width': 0.3, 'font_size': 0, 'text_distance': 0, 'quiet_zone': 1.0, 'write_text': False}
+    bc = Code128(barcode_id, writer=bc_writer)
+    bc_buf = io.BytesIO()
+    bc.write(bc_buf, options=bc_opts)
+    bc_buf.seek(0)
+
+    # استبدال باركود خطي القديم (xref=13, bbox≈392,407,487,449)
+    bc_rect = fitz.Rect(392.06, 407.41, 486.98, 449.60)
+    ed.page.add_redact_annot(bc_rect, fill=(1, 1, 1))
+    ed.page.apply_redactions(images=fitz.PDF_REDACT_IMAGE_NONE)
+    ed.page.insert_image(bc_rect, stream=bc_buf.read())
+
+    # ربط منطقة QR Code برابط التحقق
+    link_rect = fitz.Rect(113, 197, 530, 475)
+    link = {"kind": fitz.LINK_URI, "from": link_rect, "uri": verify_url}
     ed.page.insert_link(link)
 
     return ed.to_bytes()
