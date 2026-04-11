@@ -14,28 +14,85 @@ app = Flask(__name__, template_folder="templates", static_folder="static")
 
 REMOTE_URL = "https://fetyy.onrender.com"
 
-# ── تخزين بيانات الفحوصات في ملف JSON (تبقى بعد إعادة التشغيل) ──────────────
+# ── تخزين بيانات الفحوصات ─────────────────────────────────────────────────────
 DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inspections.json")
 GITHUB_RAW = "https://raw.githubusercontent.com/zerooneaction2-dotcom/fetyy/master/inspections.json"
+GITHUB_API = "https://api.github.com/repos/zerooneaction2-dotcom/fetyy/contents/inspections.json"
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")  # يُضبط في Render Dashboard
+
+import threading, time as _time, urllib.request, urllib.error, base64, hashlib
+
+_last_github_fetch = 0        # آخر وقت جلب من GitHub
+_GITHUB_REFRESH_SEC = 300     # أعد الجلب كل 5 دقائق
+_github_sha = None            # آخر SHA للملف على GitHub (لتحديث بدون تعارض)
+_github_push_lock = threading.Lock()
+
 
 def _fetch_github_data():
-    """جلب البيانات من GitHub عند بداية التشغيل (للحفاظ عليها بعد إعادة تشغيل Render)."""
-    import urllib.request
+    """جلب البيانات من GitHub (مع Cache-Busting)."""
+    global _last_github_fetch
     for attempt in range(3):
         try:
-            req = urllib.request.Request(GITHUB_RAW, headers={"Cache-Control": "no-cache"})
+            url = GITHUB_RAW + f"?_t={int(_time.time())}"
+            req = urllib.request.Request(url, headers={
+                "Cache-Control": "no-cache, no-store",
+                "Pragma": "no-cache",
+            })
             resp = urllib.request.urlopen(req, timeout=15)
-            return json.loads(resp.read().decode("utf-8"))
+            data = json.loads(resp.read().decode("utf-8"))
+            _last_github_fetch = _time.time()
+            return data
         except Exception:
-            import time as _t
             if attempt < 2:
-                _t.sleep(2)
+                _time.sleep(2)
     return {}
 
-_github_fetched = False
 
-def _load_inspections():
-    global _github_fetched
+def _push_to_github(all_data):
+    """رفع inspections.json إلى GitHub عبر API (يعمل على Render بدون git)."""
+    global _github_sha
+    if not GITHUB_TOKEN:
+        return False
+    with _github_push_lock:
+        try:
+            # 1) جلب SHA الحالي
+            req = urllib.request.Request(GITHUB_API, headers={
+                "Authorization": f"token {GITHUB_TOKEN}",
+                "Accept": "application/vnd.github.v3+json",
+            })
+            resp = urllib.request.urlopen(req, timeout=15)
+            info = json.loads(resp.read().decode("utf-8"))
+            sha = info["sha"]
+
+            # 2) دمج مع البيانات الموجودة على GitHub (حتى لا نفقد بيانات)
+            remote_data = json.loads(base64.b64decode(info["content"]).decode("utf-8"))
+            merged = {**remote_data, **all_data}
+
+            # 3) رفع الملف المحدث
+            content_b64 = base64.b64encode(
+                json.dumps(merged, ensure_ascii=False, indent=2).encode("utf-8")
+            ).decode("ascii")
+            payload = json.dumps({
+                "message": "auto-sync inspections",
+                "content": content_b64,
+                "sha": sha,
+            }).encode("utf-8")
+            req2 = urllib.request.Request(GITHUB_API, data=payload, method="PUT", headers={
+                "Authorization": f"token {GITHUB_TOKEN}",
+                "Accept": "application/vnd.github.v3+json",
+                "Content-Type": "application/json",
+            })
+            resp2 = urllib.request.urlopen(req2, timeout=20)
+            result = json.loads(resp2.read().decode("utf-8"))
+            _github_sha = result["content"]["sha"]
+            return True
+        except Exception:
+            return False
+
+
+def _load_inspections(force_github=False):
+    """تحميل البيانات: محلي + GitHub (دمج). force_github يفرض الجلب."""
+    global _last_github_fetch
     local = {}
     if os.path.exists(DATA_FILE):
         try:
@@ -43,12 +100,12 @@ def _load_inspections():
                 local = json.load(f)
         except Exception:
             local = {}
-    # عند أول تحميل على Render، ادمج بيانات GitHub مع المحلية
-    if not _github_fetched:
-        _github_fetched = True
+
+    # جلب من GitHub إذا: أول مرة، أو مر وقت طويل، أو force
+    need_fetch = force_github or (_time.time() - _last_github_fetch > _GITHUB_REFRESH_SEC)
+    if need_fetch:
         github_data = _fetch_github_data()
         if github_data:
-            # بيانات GitHub تُدمج (المحلي يأخذ الأولوية إن وجد)
             merged = {**github_data, **local}
             if merged != local:
                 with open(DATA_FILE, "w", encoding="utf-8") as f:
@@ -56,23 +113,33 @@ def _load_inspections():
             return merged
     return local
 
-# ── جلب مسبق عند بدء التشغيل (لا ينتظر أول طلب HTTP) ────────────────────
-_load_inspections()
+
+# ── جلب مسبق عند بدء التشغيل ─────────────────────────────────────────────────
+_load_inspections(force_github=True)
+
 
 def _save_inspection(barcode_id, data):
     inspections = _load_inspections()
     inspections[barcode_id] = data
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(inspections, f, ensure_ascii=False, indent=2)
-    # مزامنة البيانات مع السيرفر البعيد (Render)
+    # مزامنة: إرسال لـ Render + رفع لـ GitHub
     _sync_to_remote(barcode_id, data)
+    _async_push_github(inspections)
+
+
+def _async_push_github(all_data):
+    """رفع البيانات لـ GitHub في الخلفية."""
+    def _do():
+        _push_to_github(all_data)
+    threading.Thread(target=_do, daemon=True).start()
+
 
 def _sync_to_remote(barcode_id, data):
     """إرسال البيانات إلى Render حتى تكون متاحة عند مسح الباركود."""
-    import threading, urllib.request, urllib.error, time as _time
     def _send():
         payload = json.dumps({"barcode_id": barcode_id, "data": data}).encode()
-        for attempt in range(4):  # 4 محاولات
+        for attempt in range(4):
             try:
                 req = urllib.request.Request(
                     f"{REMOTE_URL}/api/save",
@@ -80,10 +147,10 @@ def _sync_to_remote(barcode_id, data):
                     headers={"Content-Type": "application/json"},
                 )
                 urllib.request.urlopen(req, timeout=30)
-                return  # نجحت
+                return
             except Exception:
                 if attempt < 3:
-                    _time.sleep(5 * (attempt + 1))  # انتظر 5, 10, 15 ثانية
+                    _time.sleep(5 * (attempt + 1))
     threading.Thread(target=_send, daemon=True).start()
 
 
@@ -98,13 +165,17 @@ def api_save():
         inspections[barcode_id] = data
         with open(DATA_FILE, "w", encoding="utf-8") as f:
             json.dump(inspections, f, ensure_ascii=False, indent=2)
+        # رفع تلقائي لـ GitHub لضمان عدم ضياع البيانات
+        _async_push_github(inspections)
         return jsonify({"ok": True})
     return jsonify({"error": "missing data"}), 400
 
 
 @app.route("/health")
 def health():
-    """نقطة فحص خفيفة — يستخدمها UptimeRobot لإبقاء السيرفر شغّالاً."""
+    """نقطة فحص — يستخدمها UptimeRobot لإبقاء السيرفر + تحديث البيانات."""
+    # كل 5 دقائق أعد جلب البيانات من GitHub (حماية من فقدانها)
+    _load_inspections()  # يجلب من GitHub تلقائياً إذا مر وقت كافٍ
     return "ok", 200
 
 @app.route("/")
@@ -137,8 +208,9 @@ def api_update():
     inspections[uid].update(data)
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(inspections, f, ensure_ascii=False, indent=2)
-    # مزامنة مع Render
+    # مزامنة مع Render + GitHub
     _sync_to_remote(uid, inspections[uid])
+    _async_push_github(inspections)
     return jsonify({"ok": True})
 
 
@@ -239,6 +311,9 @@ def verify():
     """صفحة نتيجة الفحص — تظهر عند مسح الباركود."""
     barcode_id = request.args.get("wb", "")
     data = _load_inspections().get(barcode_id)
+    # إذا لم تُوجد البيانات، أعد الجلب من GitHub (ربما أُضيفت مؤخراً)
+    if not data and barcode_id:
+        data = _load_inspections(force_github=True).get(barcode_id)
     return render_template("verify.html", data=data, barcode_id=barcode_id)
 
 
