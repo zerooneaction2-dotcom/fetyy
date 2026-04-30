@@ -175,15 +175,25 @@ def build_sticker(inp: dict, base_url: str = "https://fetyy.onrender.com") -> by
     verify_url = f"{base_url}/iv/fetyy.php?wb={unique_id}"
 
     # ── توليد QR Code جديد بالرابط القصير ──
-    import qrcode
     from PIL import Image as PILImage
-    qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_M, box_size=4, border=2)
-    qr.add_data(verify_url)
-    qr.make(fit=True)
-    qr_img = qr.make_image(fill_color="black", back_color="white").convert("L")
+    qr_buf = io.BytesIO()
+    try:
+        import qrcode
+        qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_M, box_size=4, border=2)
+        qr.add_data(verify_url)
+        qr.make(fit=True)
+        qr_img = qr.make_image(fill_color="black", back_color="white").convert("L")
+    except ModuleNotFoundError:
+        # بديل آمن إذا لم تتوفر مكتبة qrcode في بيئة التشغيل
+        import urllib.parse
+        import urllib.request
+
+        qr_api = "https://api.qrserver.com/v1/create-qr-code/?size=155x155&data=" + urllib.parse.quote(verify_url, safe="")
+        with urllib.request.urlopen(qr_api, timeout=20) as resp:
+            qr_img = PILImage.open(io.BytesIO(resp.read())).convert("L")
+
     # تغيير حجم الصورة لتطابق الأصلية 155x155
     qr_img = qr_img.resize((155, 155), PILImage.NEAREST)
-    qr_buf = io.BytesIO()
     qr_img.save(qr_buf, format="PNG")
     qr_buf.seek(0)
 
